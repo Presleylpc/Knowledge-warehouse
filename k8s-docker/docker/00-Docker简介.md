@@ -8,7 +8,7 @@
 
 ### 定义
 
-标准化的软件单元（ A standardized unit of software）
+标准化的软件单元（ A standardized unit of software）
 
 ### 将软件打包成标准化单元，用于开发，装运和部署
 
@@ -47,8 +47,6 @@
 ![虚拟机架构](https://www.docker.com/sites/default/files/styles/content_6_6/public/compare/container-vm-whatcontainer_2.png?itok=0eNn5aap)
 
 虚拟机（VM）是物理硬件的抽象，将一台服务器转变为多台服务器。虚拟机管理程序允许多台虚拟机在一台计算机上运行。每个VM都包含操作系统的完整副本，应用程序，必要的二进制文件和库 - 占用数十GB。虚拟机也可能很慢启动。
-
-
 
 ## containerd
 
