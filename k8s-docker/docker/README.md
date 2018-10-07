@@ -26,7 +26,7 @@ docker-compose用于单台服务器上的容器编排。
 
 [02-常用命令.md](https://github.com/huruizhi/Knowledge-warehouse/blob/master/k8s-docker/docker/02-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4.md)（未完成）
 
-[03-Dockerfile.md](https://github.com/huruizhi/Knowledge-warehouse/blob/master/k8s-docker/docker/03-Dockerfile.md)（未完成）
+[03-Dockerfile.md](https://github.com/huruizhi/Knowledge-warehouse/blob/master/k8s-docker/docker/03-Dockerfile.md)
 
 [04-DockerCompose.md](https://github.com/huruizhi/Knowledge-warehouse/blob/master/k8s-docker/docker/04-DockerCompose.md)（未完成）
 
