@@ -1,10 +1,12 @@
 # Kubernetes architecture
+
 [原文地址](https://github.com/kubernetes/kubernetes/blob/release-1.3/docs/design/architecture.md)
-<!-- A running Kubernetes cluster contains node agents (`kubelet`) and master
+
+A running Kubernetes cluster contains node agents (`kubelet`) and master
 components (APIs, scheduler, etc), on top of a distributed storage solution.
 This diagram shows our desired eventual state, though we're still working on a
 few things, like making `kubelet` itself (all our components, really) run within
-containers, and making the scheduler 100% pluggable.--!>
+containers, and making the scheduler 100% pluggable. 
 
 ![Architecture Diagram](https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.3/docs/design/architecture.png)
 
