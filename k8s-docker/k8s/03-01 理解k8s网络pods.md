@@ -1,5 +1,5 @@
 # 03- 01理解kubernetes网络：pods
-[原文地址]()
+[原文地址](https://medium.com/google-cloud/understanding-kubernetes-networking-pods-7117dd28727)
 
 <!-- This post is going to attempt to demystify the several layers of networking operating in a[kubernetes](https://kubernetes.io/)cluster. Kubernetes is a powerful platform embodying many intelligent design choices, but discussing the way things interact can get confusing: pod networks, service networks, cluster IPs, container ports, host ports, node ports… I’ve seen a few eyes glaze over. We mostly talk about these things at work, cutting across all layers at once because something is broken and someone wants it fixed. If you take it a piece at a time and get clear on how each layer works it all makes sense in a rather elegant way. -->
 这篇文章试图将 [kubernetes](https://kubernetes.io/) 集群的网络层次介绍清楚。kubernetes 是一个功能强大的平台， 有很多巧妙的设计，但是讨论其中各个部分的沟通方式常常让人感到困惑: `pod network`, `service networks`, `cluster IPs`, `container ports`, `host ports`, `node ports`…我看到了很多呆滞的眼睛。如果我们将每个层次弄清楚，一切将变得很清晰。
