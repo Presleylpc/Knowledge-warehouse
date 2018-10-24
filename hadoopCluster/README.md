@@ -10,9 +10,10 @@
 
 本文档主要介绍了hadoop集群及部分计算软件的安装部署、状态监测、服务启停方式。
 
-软件包含
+目前文档包含一下服务
 
-- Hadoop 
+- Zookeeper  3.4.5
+- Hadoop
 - Hbase
 - Hive
 - kylin
@@ -23,11 +24,11 @@
 
 部署服务前我们需要优化linux、准备java环境以及下载集群软件的安装包。
 
-具体步骤参考[集群环境准备]()
+具体步骤参考[集群环境准备](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/00-%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87.md)
 
 # ZOOKEEPER 部署
 
-集群环境准备完成后，我们需要先部署[zookeeper部署]()，hadooop集群的高可用依赖于zookeeper集群。
+集群环境准备完成后，我们需要先部署[zookeeper部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/01-zookeeper%E9%83%A8%E7%BD%B2.md)，hadooop集群的高可用依赖于zookeeper集群。
 
 zookeeper的原理参考
 
