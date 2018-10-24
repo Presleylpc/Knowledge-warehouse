@@ -1,11 +1,14 @@
 02- Hadoop部署
 
 > journalnode 进程为 JournalNode
+
 > NameNode 进程为 NameNode DFSZKFailoverController
+
 > DataNode 进程为 DataNode
+
 > yarn 进程为 ResourceManager NodeManager
 
-**首先在pycdhnode1节点安装，然后复制到其他节点 **
+**首先在pycdhnode1节点安装，然后复制到其他节点**
 
 Hadoop部署分为两个部分HDFS 与 YARN
 
