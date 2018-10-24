@@ -48,32 +48,40 @@
 
 ## 安装
 
+**注意：安装以在pycdhnode3上部署为例。在 pycdhnode1 、pycdhnode2  与 pycdhnode4上安装方式相同。**
+
 - 在 pycdhnode3 解压 `spark-2.3.1-bin-hadoop2.6.tgz` ：
-```
-tar zxvf spark-2.3.1-bin-hadoop2.6.tgz   
-mv spark-2.3.1-bin-hadoop2.6 /application/hadoop/app/spark_on_yarn   
-rm -f spark-2.3.1-bin-hadoop2.6.tgz
-```
+
+  ```
+  tar zxvf spark-2.3.1-bin-hadoop2.6.tgz   
+  mv spark-2.3.1-bin-hadoop2.6 /application/hadoop/app/spark_on_yarn   
+  rm -f spark-2.3.1-bin-hadoop2.6.tgz
+  ```
 - 添加环境变量 `vi ~/.bash_profile`:
-```
-#spark on yarn   
-export SPARK_HOME=/application/hadoop/app/spark_on_yarn   
-export PATH=$PATH:$SPARK_HOME/bin
-```
+
+  ```
+  #spark on yarn   
+  export SPARK_HOME=/application/hadoop/app/spark_on_yarn   
+  export PATH=$PATH:$SPARK_HOME/bin
+  ```
 - 加载环境变量
-```
-. ~/.bash_profile
-```
+
+  ```
+  . ~/.bash_profile
+  ```
 - 复制配置文件 `spark-env.sh` ：
-```
-cd $SPARK_HOME/conf   
-cp spark-env.sh.template spark-env.sh
-```
+
+  ```
+  cd $SPARK_HOME/conf   
+  cp spark-env.sh.template spark-env.sh
+  ```
 - 在配置文件 `spark-env.sh` 添加以下内容：
-```
-HADOOP_CONF_DIR=/application/hadoop/app/hadoop/etc/hadoop
-```
-** `spark` 会在此目录中读取 `hadoop` 集群环境参数，以便读取 `HDFS` ，调用 `yarn` 等。**
+
+  ```
+  HADOOP_CONF_DIR=/application/hadoop/app/hadoop/etc/hadoop
+  ```
+
+  ** `spark` 会在此目录中读取 `hadoop` 集群环境参数，以便读取 `HDFS` ，调用 `yarn` 等。**
 
 配置到这里， `spark` 就可以跑在 `yarn` 上了，也没必要启动 `spark` 的 `master` 和 `slaves` 服务，因为是靠 `yarn` 进行任务调度，所以直接提交任务即可。
 
@@ -82,6 +90,7 @@ HADOOP_CONF_DIR=/application/hadoop/app/hadoop/etc/hadoop
 官网实例：[http://spark.apache.org/docs/latest/submitting-applications.html#master-urls](http://spark.apache.org/docs/latest/submitting-applications.html#master-urls)
 
 ### **client 模式**
+
 ```
 hadoop@pycdhnode3:/application/hadoop>spark-submit--class org.apache.spark.examples.SparkPi --master yarn --deploy-mode client --executor-memory 1G --num-executors 1 /application/hadoop/app/spark_on_yarn/examples/jars/spark-examples_2.11-2.3.1.jar 10   
 ....   
@@ -107,13 +116,15 @@ started=false)
 2018-07-05 10:33:34 INFO SparkContext:54 - Successfully stopped SparkContext   
 2018-07-05 10:33:34 INFO ShutdownHookManager:54 - Shutdown hook called   
 2018-07-05 10:33:34 INFO ShutdownHookManager:54 - Deleting directory /tmp/spark-c5c29dea-8d7d-4866-a3bb-64310db11676   
-2018-07-05 10:33:34 INFO ShutdownHookManager:54 - Deleting directory /tmp/spark-d4b5e823-98ec-4600-a198-e226eb652e03
+2018-07-05 10:33:34 INFO ShutdownHookManager:54 - Deleting directory /tmp/spark-d4b5e823-98ec-4600-a198-e226eb652e01
 ```
+
 - 可以看到任务成功执行，并输出 `Pi is roughly 3.1418951418951417`
 
 - 在 `yarn` 后台 `[http://pycdhnode1:8088/cluster/apps](http://pycdhnode1:8088/cluster/apps)` 可以看到名为 `Spark Pi` 的任务
 
 ### **cluster 模式**
+
 ```
 hadoop@pycdhnode3:/application/hadoop>spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 1 /application/hadoop/app/spark_on_yarn/examples/jars/spark-examples_2.11-2.3.1.jar 10   
 2018-07-05 11:17:25 WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes whereapplicable   
@@ -180,6 +191,7 @@ user: hadoop
 通过结果中提供的url： [http://pycdhnode1:8088/proxy/application_1530586453729_0027/](http://pycdhnode1:8088/proxy/application_1530586453729_0027/) 查看任务状态，然后点击最右下角 `logs` -> `stdout` 具体任务输出信息，也可通过： [http://pycdhnode1:8088/cluster/apps](http://pycdhnode1:8088/cluster/apps) 点击名为： `org.apache.spark.examples.SparkPi` 的任务查看相关任务及结果信息
 
 ### 启动spark-shell
+
 ```
 hadoop@pycdhnode3:/application/hadoop>spark-shell --master yarn --deploy-mode client   
 2018-07-05 11:34:47 WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable   
@@ -210,6 +222,7 @@ res0: Long = 100
 
 scala>
 ```
+
 **spark-shell 只能使用 `client` 模式**
 
 ## 访问spart web
