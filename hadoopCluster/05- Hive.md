@@ -1,4 +1,4 @@
-# 05-Hive on Spark 部署
+# 05-Hive
 
 ## 数据库选择
 
@@ -11,3 +11,5 @@
 Hive 默认使用 MapReduce 作为执行引擎，即Hive on mr。实际上，Hive还可以使用Tez和Spark作为其执行引擎，分别为Hive on Tez和Hive on Spark。由于MapReduce中间计算均需要写入磁盘，而Spark是放在内存中，所以总体来讲Spark比MapReduce快很多。
 
 默认情况下，Hive on Spark 在YARN模式下支持Spark
+
+**但是hive对新版本的Spark支持不好，本文档使用Hive on mr 模式部署**
