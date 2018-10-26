@@ -327,7 +327,7 @@ hadoop 3.0开始配置变更为 workers
      </property>
      <property>
                 <name>yarn.log.server.url</name>
-                <value>http://pycdhnode1:19888/jobhistory/logs/</value>
+                <value>http://localhost:19888/jobhistory/logs/</value>
     </property>
     <property>
                 <name>yarn.nodemanager.remote-app-log-dir</name>
