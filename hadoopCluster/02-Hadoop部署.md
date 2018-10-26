@@ -141,162 +141,198 @@ hadoop 3.0开始配置变更为 workers
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
- 
-http://www.apache.org/licenses/LICENSE-2.0
- 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License. See accompanying LICENSE file.
--->
- 
-<!-- Put site-specific property overrides in this file. -->
- 
-<configuration>
+       Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-<!-- 指定运行mapreduce的环境是Yarn，与hadoop1不同的地方 -->
-<property>
-<name>mapreduce.framework.name</name>
-<value>yarn</value>
-</property>
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+        <property>
+                <name>mapreduce.framework.name</name>
+                <value>yarn</value>
+        </property>
+        <!-- 指定运行mapreduce的环境是Yarn，与hadoop1不同的地方 -->
+        <property>
+                <name>mapreduce.jobhistory.address</name>
+                <value>0.0.0.0:10020</value>
+        </property>
+        <!-- historyserver rpc地址-->
+        <property>
+                <name>mapreduce.jobhistory.webapp.address</name>
+                <value>0.0.0.0:19888</value>
+        </property>
+        <property>
+                <name>mapreduce.jobhistory.intermediate-done-dir</name>
+                <value>/mr-history/tmp</value>
+        </property>
+        <property>
+                <name>mapreduce.jobhistory.done-dir</name>
+                <value>/mr-history/done</value>
+        </property>
+        <!-- historyserver http地址-->
+
+        <property>
+                 <name>mapreduce.jobhistory.joblist.cache.size</name>
+                <value>40000</value>
+                <description>历史人物保存数，默认20000</description>
+        </property>
+
+        <!-- 开启uber模式（针对小作业的优化） -->
+        <property>
+                <name>mapreduce.job.ubertask.enable</name>
+                <value>true</value>
+        </property>
+ 
+        <!-- 配置启动uber模式的最大map数 -->
+        <property>
+                <name>mapreduce.job.ubertask.maxmaps</name>
+                <value>9</value>
+        </property>
+ 
+        <!-- 配置启动uber模式的最大reduce数 -->
+        <property>
+                <name>mapreduce.job.ubertask.maxreduces</name>
+                <value>1</value>
+        </property>
 </configuration>
 ```
 
 - 配置 /application/hadoop/app/hadoop/etc/hadoop/yarn-site.xml
- 
+
 ```
 <?xml version="1.0"?>
 <!--
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
- 
-http://www.apache.org/licenses/LICENSE-2.0
- 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License. See accompanying LICENSE file.
+       Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
 -->
- 
+
 <!-- Site specific YARN configuration properties -->
 <configuration>
-<property>
-<name>yarn.resourcemanager.connect.retry-interval.ms</name>
-<value>2000</value>
-</property>
-<!-- 超时的周期 -->
-
-<property>
-<name>yarn.resourcemanager.ha.enabled</name>
-<value>true</value>
-</property>
-<!-- 打开高可用 -->
-
-<property>
-<name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
-<value>true</value>
-</property>
-<!-- 启动故障自动恢复 -->
-
-<property>
-<name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
-<value>true</value>
-</property>
-<property>
-<name>yarn.resourcemanager.cluster-id</name>
-<value>yarn-rm-cluster</value>
-</property>
-<!-- 给yarn cluster 取个名字yarn-rm-cluster -->
-
-<property>
-<name>yarn.resourcemanager.ha.rm-ids</name>
-<value>rm1,rm2</value>
-</property>
-<!-- 给ResourceManager 取个名字 rm1,rm2 -->
-
-<property>
-<name>yarn.resourcemanager.hostname.rm1</name>
-<value>pycdhnode1</value>
-</property>
-<!-- 配置ResourceManager rm1 hostname -->
-
-<property>
-<name>yarn.resourcemanager.hostname.rm2</name>
-<value>pycdhnode2</value>
-</property>
-<!-- 配置ResourceManager rm2 hostname -->
-
-<property>
-<name>yarn.resourcemanager.recovery.enabled</name>
-<value>true</value>
-</property>
-<!-- 启用resourcemanager 自动恢复 -->
-
-<property>
-<name>yarn.resourcemanager.zk.state-store.address</name>
-<value>pycdhnode2:2181,pycdhnode3:2181,pycdhnode4:2181</value>
-</property>
-<!-- 配置Zookeeper地址 -->
-
-<property>
-<name>yarn.resourcemanager.zk-address</name>
-<value>pycdhnode2:2181,pycdhnode3:2181,pycdhnode4:2181</value>
-</property>
-<!-- 配置Zookeeper地址 -->
-
-<property>
-<name>yarn.resourcemanager.address.rm1</name>
-<value>pycdhnode1:8032</value>
-</property>
-<!-- rm1端口号 -->
-
-<property>
-<name>yarn.resourcemanager.scheduler.address.rm1</name>
-<value>pycdhnode1:8034</value>
-</property>
-<!-- rm1调度器的端口号 -->
-
-<property>
-<name>yarn.resourcemanager.webapp.address.rm1</name>
-<value>pycdhnode1:8088</value>
-</property>
-<!-- rm1 webapp端口号 -->
-
-<property>
-<name>yarn.resourcemanager.address.rm2</name>
-<value>pycdhnode2:8032</value>
-</property>
-<!-- rm2端口号 -->
-
-<property>
-<name>yarn.resourcemanager.scheduler.address.rm2</name>
-<value>pycdhnode2:8034</value>
-</property>
-<!-- rm2调度器的端口号 -->
-
-<property>
-<name>yarn.resourcemanager.webapp.address.rm2</name>
-<value>pycdhnode2:8088</value>
-</property>
-<!-- rm2 webapp端口号 -->
-
-<property>
-<name>yarn.nodemanager.aux-services</name>
-<value>mapreduce_shuffle</value>
-</property>
-
-<property>
-<name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
-<value>org.apache.hadoop.mapred.ShuffleHandler</value>
-</property>
-<!-- 执行MapReduce需要配置的shuffle过程 -->
-
+     <property>
+                <name>yarn.resourcemanager.connect.retry-interval.ms</name>
+                <value>2000</value>
+     </property>
+     <!-- 超时的周期 -->
+     <property>
+                <name>yarn.resourcemanager.ha.enabled</name>
+                <value>true</value>
+     </property>
+     <!-- 打开高可用 -->
+     <property>
+                <name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
+                <value>true</value>
+     </property>
+     <!-- 启动故障自动恢复 -->
+     <property>
+                <name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
+                <value>true</value>
+     </property>
+     <property>
+                <name>yarn.resourcemanager.cluster-id</name>
+                <value>yarn-rm-cluster</value>
+     </property>
+     <!-- 给yarn cluster 取个名字yarn-rm-cluster -->
+     <property>
+                <name>yarn.resourcemanager.ha.rm-ids</name>
+                <value>rm1,rm2</value>
+     </property>
+     <!-- 给ResourceManager 取个名字 rm1,rm2 -->
+     <property>
+                <name>yarn.resourcemanager.hostname.rm1</name>
+                <value>pycdhnode1</value>
+     </property>
+     <!-- 配置ResourceManager rm1 hostname -->
+     <property>
+                <name>yarn.resourcemanager.hostname.rm2</name>
+                <value>pycdhnode2</value>
+     </property>
+     <!-- 配置ResourceManager rm2 hostname -->
+     <property>
+                <name>yarn.resourcemanager.recovery.enabled</name>
+                <value>true</value>
+     </property>
+     <!-- 启用resourcemanager 自动恢复 -->
+     <property>
+                <name>yarn.resourcemanager.zk.state-store.address</name>
+                <value>pycdhnode2:2181,pycdhnode3:2181,pycdhnode4:2181</value>
+     </property>
+     <!-- 配置Zookeeper地址 -->
+     <property>
+                <name>yarn.resourcemanager.zk-address</name>
+                <value>pycdhnode2:2181,pycdhnode3:2181,pycdhnode4:2181</value>
+     </property>
+     <!-- 配置Zookeeper地址 -->
+     <property>
+                <name>yarn.resourcemanager.address.rm1</name>
+                <value>pycdhnode1:8032</value>
+     </property>
+     <!--  rm1端口号 -->
+     <property>
+                <name>yarn.resourcemanager.scheduler.address.rm1</name>
+                <value>pycdhnode1:8034</value>
+     </property>
+     <!-- rm1调度器的端口号 -->
+     <property>
+                <name>yarn.resourcemanager.webapp.address.rm1</name>
+                <value>pycdhnode1:8088</value>
+     </property>
+     <!-- rm1 webapp端口号 -->
+     <property>
+                <name>yarn.resourcemanager.address.rm2</name>
+     <value>pycdhnode2:8032</value>
+     </property>
+     <!-- rm2端口号 -->
+     <property>
+                <name>yarn.resourcemanager.scheduler.address.rm2</name>
+                <value>pycdhnode2:8034</value>
+     </property>
+     <!-- rm2调度器的端口号 -->
+     <property>
+                <name>yarn.resourcemanager.webapp.address.rm2</name>
+                <value>pycdhnode2:8088</value>
+     </property>
+     <!-- rm2 webapp端口号 -->
+     <property>
+                <name>yarn.nodemanager.aux-services</name>
+                <value>mapreduce_shuffle</value>
+     </property>
+     <property>
+                <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+                <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+     </property>
+     <!-- 执行MapReduce需要配置的shuffle过程 -->
+     <property>  
+                <name>yarn.log-aggregation-enable</name>  
+                <value>true</value>
+                <!--开启yarn job日志聚合，开启后可以在historyserver上查看任务日志-->
+     </property>
+     <property>
+                <name>yarn.log.server.url</name>
+                <value>http://pycdhnode1:19888/jobhistory/logs/</value>
+    </property>
+    <property>
+                <name>yarn.nodemanager.remote-app-log-dir</name>
+                <value>/user/container/logs</value>
+    </property> 
 </configuration>
 ```
 
@@ -308,7 +344,6 @@ mkdir -p /application/hadoop/data/journaldata/jn
 mkdir -p /application/hadoop/data/pid
 touch /application/hadoop/app/hadoop/etc/hadoop/excludes
 ```
-
 
 - 复制hadoop到pycdhnode2-4 并创建目录
 
@@ -447,18 +482,22 @@ hadoop jar /application/hadoop/app/hadoop/share/hadoop/mapreduce/hadoop-mapreduc
 ## 集群启动/停止顺序
 
 
-### 启动
-启动pycdhnode2-3节点zookeeper
+### 启动 zookeeper
+启动pycdhnode2-3节点 zookeeper
 ```
 /application/hadoop/app/zookeeper/bin/zkServer.sh start
 ```
+### 在pycdhnode1启动 JobHistoryServer
+```
+/application/hadoop/app/hadoop/sbin/mr-jobhistory-daemon.sh start historyserver
+```
 
-#### 启动HDFS
+#### 启动 HDFS
 ```
 /application/hadoop/app/hadoop/sbin/start-dfs.sh
 ```
 
-#### 启动YARN
+#### 启动 YARN
 ```
 # 首先pycdhnode1执行：
 
@@ -479,6 +518,10 @@ hadoop jar /application/hadoop/app/hadoop/share/hadoop/mapreduce/hadoop-mapreduc
 # 然后pycdhnode1执行：
 
 /application/hadoop/app/hadoop/sbin/stop-yarn.sh
+```
+#### 在pycdhnode1关闭  JobHistoryServer
+```
+/application/hadoop/app/hadoop/sbin/mr-jobhistory-daemon.sh stop historyserver
 ```
 
 #### 停止HDFS
