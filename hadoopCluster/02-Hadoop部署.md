@@ -487,7 +487,7 @@ hadoop jar /application/hadoop/app/hadoop/share/hadoop/mapreduce/hadoop-mapreduc
 ```
 /application/hadoop/app/zookeeper/bin/zkServer.sh start
 ```
-### 在pycdhnode1启动 JobHistoryServer
+#### 启动 JobHistoryServer
 ```
 /application/hadoop/app/hadoop/sbin/mr-jobhistory-daemon.sh start historyserver
 ```
