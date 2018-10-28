@@ -34,29 +34,24 @@
 # 部署指南
 服务部署流程请参照具体的部署流程文档
 
-                                                                                                                     
-| ------- | ---------- | ------------ | ------------ | 
-| [00-集群环境准备](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/00-%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87.md) |[01-zookeeper部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/01-zookeeper%E9%83%A8%E7%BD%B2.md)| [02-Hadoop部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/02-Hadoop%E9%83%A8%E7%BD%B2.md) |
-
-|[03- Spark on YARN 安装](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/03-%20Spark%20on%20YARN%20%E5%AE%89%E8%A3%85.md)|[04- Hbase 部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/04-%20Hbase%20%E9%83%A8%E7%BD%B2.md)|[05- Hive](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/05-%20Hive.md)|[05-01 mysql部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/05-01%20mysql%E9%83%A8%E7%BD%B2.md)|
-
-|[05-02 Hive部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/05-02%20Hive%E9%83%A8%E7%BD%B2.md)|[06 - kafka部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/06%20-%20kafka%E9%83%A8%E7%BD%B2.md)|[07- kylin部署](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/07-%20kylin%E9%83%A8%E7%BD%B2.md)|[08-azkaban.md](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/08-azkaban.md)|
-
-|[09-elasticsearch+kibana](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/09-elasticsearch%2Bkibana.md)|||
-
-
 <table border="0">
     <tr>
-        <td><a href="00-集群环境准备.md">00-集群环境准备</a></td>
-        <td><a href="01-zookeeper部署.md">01-zookeeper部署</a></td>
-        <td><a href="02-Hadoop部署.md">02-Hadoop部署</a></td>
-        <td><a href="03- Spark on YARN 安装.md">03- Spark on YARN 安装</a></td>
+        <td><a href="00-集群环境准备.md">doc/install/00-集群环境准备</a></td>
+        <td><a href="01-zookeeper部署.md">doc/install/01-zookeeper部署</a></td>
+        <td><a href="02-Hadoop部署.md">doc/install/02-Hadoop部署</a></td>
+        <td><a href="03- Spark on YARN 安装.md">doc/install/03- Spark on YARN 安装</a></td>
     </tr>
     <tr>
-        <td><a href="docs/setup/01-CA_and_prerequisite.md">01-创建证书和安装准备</a></td>
-        <td><a href="docs/setup/03-install_docker.md">03-安装docker服务</a></td>
-        <td><a href="docs/setup/05-install_kube_node.md">05-安装node节点</a></td>
-        <td><a href="docs/setup/07-install_cluster_addon.md">07-安装集群插件</a></td>
+        <td><a href="04- Hbase 部署.md">doc/install/04- Hbase 部署</a></td>
+        <td><a href="05- Hive.md">doc/install/05- Hive</a></td>
+        <td><a href="05-01 mysql部署.md">doc/install/05-01 mysql部署</a></td>
+        <td><a href="05-02 Hive部署.md">doc/install/05-02 Hive部署</a></td>
+    </tr>
+    <tr>
+        <td><a href="06 - kafka部署.md">doc/install/06 - kafka部署</a></td>
+        <td><a href="07- kylin部署.md">doc/install/07- kylin部署</a></td>
+        <td><a href="08-azkaban.md">doc/install/08-azkaban</a></td>
+        <td><a href="09-elasticsearch+kibana.md">doc/install/09-elasticsearch+kibana</a></td>
     </tr>
 </table>
 
