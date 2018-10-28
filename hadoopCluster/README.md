@@ -36,22 +36,22 @@
 
 <table border="0">
     <tr>
-        <td><a href="00-集群环境准备.md">doc/install/00-集群环境准备</a></td>
-        <td><a href="01-zookeeper部署.md">doc/install/01-zookeeper部署</a></td>
-        <td><a href="02-Hadoop部署.md">doc/install/02-Hadoop部署</a></td>
-        <td><a href="03- Spark on YARN 安装.md">doc/install/03- Spark on YARN 安装</a></td>
+        <td><a href="doc/install/00-集群环境准备.md">00 集群环境准备</a></td>
+        <td><a href="doc/install/01-zookeeper部署.md">01 zookeeper部署</a></td>
+        <td><a href="doc/install/02-Hadoop部署.md">02 Hadoop部署</a></td>
+        <td><a href="doc/install/03- Spark on YARN 安装.md">03 Spark on YARN 安装</a></td>
     </tr>
     <tr>
-        <td><a href="04- Hbase 部署.md">doc/install/04- Hbase 部署</a></td>
-        <td><a href="05- Hive.md">doc/install/05- Hive</a></td>
-        <td><a href="05-01 mysql部署.md">doc/install/05-01 mysql部署</a></td>
-        <td><a href="05-02 Hive部署.md">doc/install/05-02 Hive部署</a></td>
+        <td><a href="doc/install/04- Hbase 部署.md">04 Hbase 部署</a></td>
+        <td><a href="doc/install/05- Hive.md">d05 Hive</a></td>
+        <td><a href="doc/install/05-01 mysql部署.md">05-01 mysql部署</a></td>
+        <td><a href="doc/install/05-02 Hive部署.md">05-02 Hive部署</a></td>
     </tr>
     <tr>
-        <td><a href="06 - kafka部署.md">doc/install/06 - kafka部署</a></td>
-        <td><a href="07- kylin部署.md">doc/install/07- kylin部署</a></td>
-        <td><a href="08-azkaban.md">doc/install/08-azkaban</a></td>
-        <td><a href="09-elasticsearch+kibana.md">doc/install/09-elasticsearch+kibana</a></td>
+        <td><a href="doc/install/06 - kafka部署.md">06 kafka部署</a></td>
+        <td><a href="doc/install/07- kylin部署.md">07 kylin部署</a></td>
+        <td><a href="doc/install/08-azkaban.md">08 azkaban</a></td>
+        <td><a href="doc/install/09-elasticsearch+kibana.md">09 elasticsearch+kibana</a></td>
     </tr>
 </table>
 
