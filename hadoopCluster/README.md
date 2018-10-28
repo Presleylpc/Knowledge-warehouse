@@ -44,3 +44,19 @@
 
 |[09-elasticsearch+kibana](https://github.com/huruizhi/Knowledge-warehouse/blob/master/hadoopCluster/09-elasticsearch%2Bkibana.md)|||
 
+
+<table border="0">
+    <tr>
+        <td><a href="00-集群环境准备.md">00-集群环境准备</a></td>
+        <td><a href="01-zookeeper部署.md">01-zookeeper部署</a></td>
+        <td><a href="02-Hadoop部署.md">02-Hadoop部署</a></td>
+        <td><a href="03- Spark on YARN 安装.md">03- Spark on YARN 安装</a></td>
+    </tr>
+    <tr>
+        <td><a href="docs/setup/01-CA_and_prerequisite.md">01-创建证书和安装准备</a></td>
+        <td><a href="docs/setup/03-install_docker.md">03-安装docker服务</a></td>
+        <td><a href="docs/setup/05-install_kube_node.md">05-安装node节点</a></td>
+        <td><a href="docs/setup/07-install_cluster_addon.md">07-安装集群插件</a></td>
+    </tr>
+</table>
+
