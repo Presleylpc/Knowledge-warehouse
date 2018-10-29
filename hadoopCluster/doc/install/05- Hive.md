@@ -13,3 +13,8 @@ Hive 默认使用 MapReduce 作为执行引擎，即Hive on mr。实际上，Hiv
 默认情况下，Hive on Spark 在YARN模式下支持Spark
 
 **但是hive对新版本的Spark支持不好，本文档使用Hive on mr 模式部署**
+
+## 部署详细步骤
+
+- <a href="./05-01 mysql部署.md">05-01 mysql部署</a> 
+- <a href="./05-02 Hive部署.md">05-02 Hive部署</a> 
