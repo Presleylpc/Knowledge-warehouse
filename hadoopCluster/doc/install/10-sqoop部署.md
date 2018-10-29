@@ -4,7 +4,7 @@
 
 **先在 pycdhnode2 上进行部署， 然后拷贝到 pycdhnode3 pycdhnode4 上** 
 
-sqoop部署依赖于hive，因此 pycdhnode2  pycdhnode3 pycdhnode4 上的[hive部署](./05- Hive)必须完成
+sqoop部署依赖于hive，因此 pycdhnode2  pycdhnode3 pycdhnode4 上的[hive部署](05- Hive.md)必须完成
 
 - 下载sqoop二进制包
 ```
