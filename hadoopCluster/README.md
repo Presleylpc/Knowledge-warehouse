@@ -43,7 +43,7 @@
     </tr>
     <tr>
         <td><a href="doc/install/04- Hbase 部署.md">04 Hbase 部署</a></td>
-        <td><a href="doc/install/05- Hive.md">d05 Hive</a></td>
+        <td><a href="doc/install/05- Hive.md">05 Hive</a></td>
         <td><a href="doc/install/05-01 mysql部署.md">05-01 mysql部署</a></td>
         <td><a href="doc/install/05-02 Hive部署.md">05-02 Hive部署</a></td>
     </tr>

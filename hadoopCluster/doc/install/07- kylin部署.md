@@ -1,40 +1,42 @@
 # 07- kylin部署
 
-kylin安装
+## kylin安装
 
-官方建议配置：运行 Kylin 的服务器的最低的配置为 4 core CPU, 16 GB memory 和 100 GB disk。 对于高负载的场景，建议使用 24 core CPU, 64 GB memory 或更高的配置。   
+- 官方建议配置：运行 Kylin 的服务器的最低的配置为 4 core CPU, 16 GB memory 和 100 GB disk。 对于高负载的场景，建议使用 24 core CPU, 64 GB memory 或更高的配置。   
+
 Kylin 依赖于 Hadoop 集群处理大量的数据集。您需要准备一个配置好 HDFS, YARN, MapReduce, Hive, Hbase, Zookeeper 和其他服务的 Hadoop 集群供 Kylin 运行。最常见的是在 Hadoop client machine 上安装 Kylin，这样 Kylin 可以通过（hive, hbase, hadoop, 以及其他的）命令行与 Hadoop 进行通信。   
 Kylin 可以在 Hadoop 集群的任意节点上启动。方便起见，您可以在 master 节点上运行 Kylin。但为了更好的稳定性，我们建议您将其部署在一个干净的 Hadoop client 节点上，该节点上 hive, hbase, hadoop, hdfs 命令行已安装好且 client 配置如（core-site.xml, hive-site.xml, hbase-site.xml, 及其他）也已经合理的配置且其可以自动和其它节点同步。运行 Kylin 的 Linux 账户要有访问 Hadoop 集群的权限，包括 create/write HDFS 文件夹, hive 表, hbase 表 和 提交 MR jobs 的权限。
 
 **注：** 本次部署采用单机模式，实际生产建议采用集群模式。
 
-单机模式kylin安装
+## 单机模式kylin安装
 
-在 pycdhnode1 解压 `apache-kylin-2.4.0-bin-cdh57.tar.gz` ：
-
+- 在 pycdhnode1 解压 `apache-kylin-2.4.0-bin-cdh57.tar.gz` ：
+```
 tar zxvf apache-kylin-2.4.0-bin-cdh57.tar.gz   
 mv apache-kylin-2.4.0-bin-cdh57 /application/hadoop/app/kylin   
 rm -f apache-kylin-2.4.0-bin-cdh57.tar.gz
-
-添加环境变量 `vi ~/.bash_profile`:
-
+```
+- 添加环境变量 `vi ~/.bash_profile`:
+```
 #kylin   
 export KYLIN_HOME=/application/hadoop/app/kylin   
 export PATH=$PATH:$KYLIN_HOME/bin
-
-加载环境变量
-
+```
+- 加载环境变量
+```
 . ~/.bash_profile
+```
 
-确保用户有权限在 shell 中运行 hadoop, hive 和 hbase cmd。如果您不确定，可以运行 `$KYLIN_HOME/bin/check-env.sh` 脚本，如果您的环境有任何的问题，它会将打印出详细的信息。如果没有 error，意味着环境没问题。
-
+**注意：确保用户有权限在 shell 中运行 hadoop, hive 和 hbase cmd。如果您不确定，可以运行 `$KYLIN_HOME/bin/check-env.sh` 脚本，如果您的环境有任何的问题，它会将打印出详细的信息。如果没有 error，意味着环境没问题。**
+```
 hadoop@pycdhnode1:/application/hadoop>$KYLIN_HOME/bin/check-env.sh   
 Retrieving hadoop conf dir...   
 KYLIN_HOME is set to /application/hadoop/app/kylin   
 hadoop@pycdhnode1:/application/hadoop>
-
+```
 执行检查命令后会在hdfs上创建kylin目录
-
+```
 hadoop@pycdhnode1:/application/hadoop>hadoop fs -ls /   
 Found 6 items   
 drwxr-xr-x - hadoop supergroup 0 2018-07-02 14:23 /application   
@@ -44,9 +46,9 @@ drwxr-xr-x - hadoop supergroup 0 2018-07-03 15:23 /kylin
 drwxr-xr-x - hadoop supergroup 0 2018-07-02 14:26 /test   
 drwx------ - hadoop supergroup 0 2018-07-02 14:26 /tmp   
 hadoop@pycdhnode1:/application/hadoop>
-
-启动kylin
-
+```
+## 启动kylin
+```
 hadoop@pycdhnode1:/application/hadoop>/application/hadoop/app/kylin/bin/kylin.shstart   
 Retrieving hadoop conf dir...   
 KYLIN_HOME is set to /application/hadoop/app/kylin   
@@ -69,27 +71,27 @@ Retrieving Spark dependency...
 A new Kylin instance is started by hadoop. To stop it, run 'kylin.sh stop'   
 Check the log at /application/hadoop/app/kylin/logs/kylin.log   
 Web UI is at http://<hostname>:7070/kylin
-
+```
 - 日志目录 /application/hadoop/app/kylin/logs
 
-访问 kylin web 界面
+- 访问 kylin web 界面
 
 > [http://pycdhnode1:7070/kylin](http://pycdhnode1:7070/kylin)
 
 - 默认用户/密码：ADMIN/KYLIN
 
-停止kylin
-
+## 停止kylin
+```
 hadoop@pycdhnode1:/application/hadoop>/application/hadoop/app/kylin/bin/kylin.sh stop   
 Retrieving hadoop conf dir...   
 KYLIN_HOME is set to /application/hadoop/app/kylin   
 Stopping Kylin: 25956   
 Kylin with pid 25956 has been stopped.
-
-kylin主要配置介绍
+```
+## kylin主要配置介绍
 
 Kylin 会自动从环境中检测 Hadoop/Hive/HBase 配置，如 “core-site.xml”, “hbase-site.xml” 和其他。除此之外，Kylin 有自己的配置，在 “conf” 文件夹下。
-
+```
 hadoop@pycdhnode1:/application/hadoop>ls-l $KYLIN_HOME/conf   
 total 44   
 -rw-r--r-- 1 hadoop hadoop 3605 Jun 20 15:53 kylin_hive_conf.xml   
@@ -100,122 +102,1258 @@ total 44
 -rw-r--r-- 1 hadoop hadoop 1339 Jun 20 15:53 kylin-server-log4j.properties   
 -rw-r--r-- 1 hadoop hadoop 1656 Jun 20 15:53 kylin-tools-log4j.properties   
 -rwxr-xr-x 1 hadoop hadoop 3649 Jun 20 15:53 setenv.sh
-
-kylin_hive_conf.xml   
+```
+- kylin_hive_conf.xml   
 Kylin 从 Hive 中取数据时应用的 Hive 配置。
 
-kylin_job_conf.xml and kylin_job_conf_inmem.xml   
+- kylin_job_conf.xml and kylin_job_conf_inmem.xml   
 Kylin 运行 MapReduce jobs 时的 Hadoop MR 配置。在 Kylin 的 “In-mem cubing” job 的时候，”kylin_job_conf_inmem.xml” 需要更多的 memory 给 mapper。
 
-kylin-kafka-consumer.xml   
+- kylin-kafka-consumer.xml   
 Kylin 从 Kafka brokers 中取数据时应用的 Kafka 配置。
 
-kylin-server-log4j.properties   
+- kylin-server-log4j.properties   
 Kylin 服务器的日志配置。
 
-kylin-tools-log4j.properties   
+- kylin-tools-log4j.properties   
 Kylin 命令行的日志配置。
 
-setenv.sh   
+- setenv.sh   
 设置环境变量的 shell 脚本。它将在 “kylin.sh” 和 “bin” 文件夹中的其它脚本中被调用。通常，您可以在这里调整 Kylin JVM 栈的大小，且可以设置 “KAFKA_HOME” 和其他环境变量。
 
 kylin.properties
 
 **Kylin 主要配置**
 
-<table><colgroup><col><col><col><col></colgroup><tbody><tr><th><span>Key</span></th><th><span>Default value</span></th><th><span>Description</span></th><th><span>Overwritten at Cube</span></th></tr><tr><td><span>kylin.env</span></td><td><span>Dev</span></td><td><span>Whether this env is a Dev, QA, or Prod environment</span></td><td><span>No</span></td></tr><tr><td><span>kylin.env.hdfs-working-dir</span></td><td><span>/kylin</span></td><td><span>Working directory on HDFS</span></td><td><span>No</span></td></tr><tr><td><span>kylin.env.zookeeper-base-path</span></td><td><span>/kylin</span></td><td><span>Path on ZK</span></td><td><span>No</span></td></tr><tr><td><span>kylin.env.zookeeper-connect-string</span></td><td><span>ZK connection string;</span></td><td><span>If blank, use HBase’s ZK</span></td><td><span>No</span></td></tr><tr><td><span>kylin.env.zookeeper-acl-enabled</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.env.zookeeper.zk-auth</span></td><td><span>digest:ADMIN:KYLIN</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.env.zookeeper.zk-acl</span></td><td><span>world:anyone:rwcda</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.url</span></td><td><span>kylin_metadata@hbase</span></td><td><span>Kylin metadata storage</span></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.sync-retries</span></td><td><span>3</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.sync-error-handler</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.check-copy-on-write</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.hbase-client-scanner-timeout-period</span></td><td><span>10000</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.hbase-rpc-timeout</span></td><td><span>5000</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.hbase-client-retries-number</span></td><td><span>1</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.use-forest-trie</span></td><td><span>true</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.forest-trie-max-mb</span></td><td><span>500</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.max-cache-entry</span></td><td><span>3000</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.growing-enabled</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.append-entry-size</span></td><td><span>10000000</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.append-max-versions</span></td><td><span>3</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.dictionary.append-version-ttl</span></td><td><span>259200000</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.snapshot.max-cache-entry</span></td><td><span>500</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.snapshot.max-mb</span></td><td><span>300</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.snapshot.ext.shard-mb</span></td><td><span>500</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.snapshot.ext.local.cache.path</span></td><td><span>lookup_cache</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.snapshot.ext.local.cache.max-size-gb</span></td><td><span>200</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.cube.size-estimate-ratio</span></td><td><span>0.25</span></td><td><br></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.size-estimate-memhungry-ratio</span></td><td><span>0.05</span></td><td><span>Deprecated</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.size-estimate-countdistinct-ratio</span></td><td><span>0.05</span></td><td><br></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.algorithm</span></td><td><span>auto</span></td><td><span>Cubing algorithm for MR engine, other options: layer, inmem</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.algorithm.layer-or-inmem-threshold</span></td><td><span>7</span></td><td><br></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.algorithm.inmem-split-limit</span></td><td><span>500</span></td><td><br></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.algorithm.inmem-concurrent-threads</span></td><td><span>1</span></td><td><br></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.ignore-signature-inconsistency</span></td><td><span>false</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.cube.aggrgroup.max-combination</span></td><td><span>4096</span></td><td><span>Max cuboid numbers in a Cube</span></td><td><span>Yes</span></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.cube.aggrgroup.is/">kylin.cube.aggrgroup.is</a>-mandatory-only-valid</span></td><td><span>false</span></td><td><span>Whether allow a Cube only has the base cuboid.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.rowkey.max-size</span></td><td><span>63</span></td><td><span>Max columns in Rowkey</span></td><td><span>No</span></td></tr><tr><td><span>kylin.metadata.dimension-encoding-max-length</span></td><td><span>256</span></td><td><span>Max length for one dimension’s encoding</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.max-building-segments</span></td><td><span>10</span></td><td><span>Max building segments in one Cube</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.cube.allow-appear-in-multiple-projects</span></td><td><span>false</span></td><td><span>Whether allow a Cueb appeared in multiple projects</span></td><td><span>No</span></td></tr><tr><td><span>kylin.cube.gtscanrequest-serialization-level</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.cube.is/">kylin.cube.is</a>-automerge-enabled</span></td><td><span>true</span></td><td><span>Whether enable auto merge.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.job.log-dir</span></td><td><span>/tmp/kylin/logs</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.job.allow-empty-segment</span></td><td><span>true</span></td><td><span>Whether tolerant data source is emtpy.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.job.max-concurrent-jobs</span></td><td><span>10</span></td><td><span>Max concurrent running jobs</span></td><td><span>No</span></td></tr><tr><td><span>kylin.job.sampling-percentage</span></td><td><span>100</span></td><td><span>Data sampling percentage, to calculate Cube statistics; Default be all.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.job.notification-enabled</span></td><td><span>false</span></td><td><span>Whether send email notification on job error/succeed.</span></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-enable-starttls</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-port</span></td><td><span>25</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-host</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-username</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-password</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-mail-sender</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.notification-admin-emails</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.retry</span></td><td><span>0</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.scheduler.priority-considered</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.scheduler.priority-bar-fetch-from-queue</span></td><td><span>20</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.scheduler.poll-interval-second</span></td><td><span>30</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.job.error-record-threshold</span></td><td><span>0</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.keep-flat-table</span></td><td><span>false</span></td><td><span>Whether keep the intermediate Hive table after job finished.</span></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.database-for-flat-table</span></td><td><span>default</span></td><td><span>Hive database to create the intermediate table.</span></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.flat-table-storage-format</span></td><td><span>SEQUENCEFILE</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.flat-table-field-delimiter</span></td><td><span>\u001F</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.redistribute-flat-table</span></td><td><span>true</span></td><td><span>Whether or not to redistribute the flat table.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.source.hive.client</span></td><td><span>cli</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.beeline-shell</span></td><td><span>beeline</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.beeline-params</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.enable-sparksql-for-table-ops</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.sparksql-beeline-shell</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.sparksql-beeline-params</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.table-dir-create-first</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.flat-table-cluster-by-dict-column</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.hive.default-varchar-precision</span></td><td><span>256</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.default-char-precision</span></td><td><span>255</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.default-decimal-precision</span></td><td><span>19</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.hive.default-decimal-scale</span></td><td><span>4</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.source.jdbc.connection-url</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.driver</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.dialect default</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.user</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.pass</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.sqoop-home</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.sqoop-mapper-num</span></td><td><span>4</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.source.jdbc.field-delimiter</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.default</span></td><td><span>2</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.storage.hbase.table-name-prefix</span></td><td><span>KYLIN_</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.storage.hbase.namespace</span></td><td><span>default</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.storage.hbase.cluster-fs</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.cluster-hdfs-config-file</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.coprocessor-local-jar</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.min-region-count</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-region-count</span></td><td><span>500</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.hfile-size-gb</span></td><td><span>2.0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.run-local-coprocessor</span></td><td><span>false</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.coprocessor-mem-gb</span></td><td><span>3.0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.partition.aggr-spill-enabled</span></td><td><span>true</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.partition.max-scan-bytes</span></td><td><span>3221225472</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.coprocessor-timeout-seconds</span></td><td><span>0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-fuzzykey-scan</span></td><td><span>200</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-fuzzykey-scan-split</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-visit-scanrange</span></td><td><span>1000000</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.scan-cache-rows</span></td><td><span>1024</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.region-cut-gb</span></td><td><span>5.0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-scan-result-bytes</span></td><td><span>5242880</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.compression-codec</span></td><td><span>none</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.rowkey-encoding</span></td><td><span>FAST_DIFF</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.block-size-bytes</span></td><td><span>1048576</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.small-family-block-size-bytes</span></td><td><span>65536</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.owner-tag</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.endpoint-compress-result</span></td><td><span>true</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.max-hconnection-threads</span></td><td><span>2048</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.core-hconnection-threads</span></td><td><span>2048</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.storage.hbase.hconnection-threads-alive-seconds</span></td><td><span>60</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.lib-dir</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.reduce-input-mb</span></td><td><span>500</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.reduce-count-ratio</span></td><td><span>1.0</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.min-reducer-number</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.max-reducer-number</span></td><td><span>500</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.mapper-input-rows</span></td><td><span>1000000</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.max-cuboid-stats-calculator-number</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.uhc-reducer-count</span></td><td><span>1</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.build-uhc-dict-in-additional-step</span></td><td><span>false</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.build-dict-in-reducer</span></td><td><span>true</span></td><td><br></td><td><br></td></tr><tr><td><span><a rel="nofollow" href="http://kylin.engine.mr/">kylin.engine.mr</a>.yarn-check-interval-seconds</span></td><td><span>10</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.env.hadoop-conf-dir</span></td><td><span>Hadoop conf directory;</span></td><td><span>If not specified, parse from environment.</span></td><td><span>No</span></td></tr><tr><td><span>kylin.engine.spark.rdd-partition-cut-mb</span></td><td><span>10.0</span></td><td><span>Spark Cubing RDD partition split size.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.engine.spark.min-partition</span></td><td><span>1</span></td><td><span>Spark Cubing RDD min partition number</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.engine.spark.max-partition</span></td><td><span>5000</span></td><td><span>RDD max partition number</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.engine.spark.storage-level</span></td><td><span>MEMORY_AND_DISK_SER</span></td><td><span>RDD persistent level.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.query.skip-empty-segments</span></td><td><span>true</span></td><td><span>Whether directly skip empty segment (metadata shows size be 0) when run SQL query.</span></td><td><span>Yes</span></td></tr><tr><td><span>kylin.query.force-limit</span></td><td><span>-1</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.max-scan-bytes</span></td><td><span>0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.max-return-rows</span></td><td><span>5000000</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.large-query-threshold</span></td><td><span>1000000</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.cache-threshold-duration</span></td><td><span>2000</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.cache-threshold-scan-count</span></td><td><span>10240</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.cache-threshold-scan-bytes</span></td><td><span>1048576</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.security-enabled</span></td><td><span>true</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.cache-enabled</span></td><td><span>true</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.timeout-seconds</span></td><td><span>0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.runner-class-name</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.update-enabled</span></td><td><span>false</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.cache-enabled</span></td><td><span>false</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.url</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.driver</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.username</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.password</span></td><td><br></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.pool-max-total</span></td><td><span>8</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.pool-max-idle</span></td><td><span>8</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.pushdown.jdbc.pool-min-idle</span></td><td><span>0</span></td><td><br></td><td><br></td></tr><tr><td><span>kylin.query.security.table-acl-enabled</span></td><td><span>true</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.mode</span></td><td><span>all</span></td><td><span>Kylin node mode: all job query.</span></td><td><span>No</span></td></tr><tr><td><span>kylin.server.cluster-servers</span></td><td><span>localhost:7070</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.cluster-name</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.query-metrics-enabled</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.query-metrics2-enabled</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.auth-user-cache.expire-seconds</span></td><td><span>300</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.auth-user-cache.max-entries</span></td><td><span>100</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.server.external-acl-provider</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.security.ldap.user-search-base</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.security.ldap.user-group-search-base</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.security.acl.admin-role</span></td><td><br></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.web.timezone</span></td><td><span>PST</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.web.cross-domain-enabled</span></td><td><span>true</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.web.export-allow-admin</span></td><td><span>true</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.web.export-allow-other</span></td><td><span>true</span></td><td><br></td><td><span>No</span></td></tr><tr><td><span>kylin.web.dashboard-enabled</span></td><td><span>false</span></td><td><br></td><td><span>No</span></td></tr></tbody></table>
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Default value</th>
+      <th>Description</th>
+      <th>Overwritten at Cube</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>kylin.env</td>
+      <td>Dev</td>
+      <td>Whether this env is a Dev, QA, or Prod environment</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.hdfs-working-dir</td>
+      <td>/kylin</td>
+      <td>Working directory on HDFS</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.zookeeper-base-path</td>
+      <td>/kylin</td>
+      <td>Path on ZK</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.zookeeper-connect-string</td>
+      <td> </td>
+      <td>ZK connection string; If blank, use HBase’s ZK</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.zookeeper-acl-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.zookeeper.zk-auth</td>
+      <td>digest:ADMIN:KYLIN</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.env.zookeeper.zk-acl</td>
+      <td>world:anyone:rwcda</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.dimension-encoding-max-length</td>
+      <td>256</td>
+      <td>Max length for one dimension’s encoding</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.url</td>
+      <td>kylin_metadata@hbase</td>
+      <td>Kylin metadata storage</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.sync-retries</td>
+      <td>3</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.sync-error-handler</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.check-copy-on-write</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.hbase-client-scanner-timeout-period</td>
+      <td>10000</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.hbase-rpc-timeout</td>
+      <td>5000</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.hbase-client-retries-number</td>
+      <td>1</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.jdbc.dialect</td>
+      <td>mysql</td>
+      <td>clarify the type of dialect</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.resource-store-provider.jdbc</td>
+      <td>org.apache.kylin.common.persistence.JDBCResourceStore</td>
+      <td>specify the class that jdbc used</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.jdbc.json-always-small-cell</td>
+      <td>true</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.jdbc.small-cell-meta-size-warning-threshold</td>
+      <td>100mb</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.jdbc.small-cell-meta-size-error-threshold</td>
+      <td>1gb</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.metadata.jdbc.max-cell-size</td>
+      <td>1mb</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.use-forest-trie</td>
+      <td>true</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.forest-trie-max-mb</td>
+      <td>500</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.max-cache-entry</td>
+      <td>3000</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.growing-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.append-entry-size</td>
+      <td>10000000</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.append-max-versions</td>
+      <td>3</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.append-version-ttl</td>
+      <td>259200000</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.resuable</td>
+      <td>false</td>
+      <td>Whether reuse dict</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.dictionary.shrunken-from-global-enabled</td>
+      <td>false</td>
+      <td>Whether shrink global dict</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.snapshot.max-cache-entry</td>
+      <td>500</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.snapshot.max-mb</td>
+      <td>300</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.snapshot.ext.shard-mb</td>
+      <td>500</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.snapshot.ext.local.cache.path</td>
+      <td>lookup_cache</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.snapshot.ext.local.cache.max-size-gb</td>
+      <td>200</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.size-estimate-ratio</td>
+      <td>0.25</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.size-estimate-memhungry-ratio</td>
+      <td>0.05</td>
+      <td>Deprecated</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.size-estimate-countdistinct-ratio</td>
+      <td>0.5</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.size-estimate-topn-ratio</td>
+      <td>0.5</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.algorithm</td>
+      <td>auto</td>
+      <td>Cubing algorithm for MR engine, other options: layer, inmem</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.algorithm.layer-or-inmem-threshold</td>
+      <td>7</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.algorithm.inmem-split-limit</td>
+      <td>500</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.algorithm.inmem-concurrent-threads</td>
+      <td>1</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.ignore-signature-inconsistency</td>
+      <td>false</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.cube.aggrgroup.max-combination</td>
+      <td>32768</td>
+      <td>Max cuboid numbers in a Cube</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.aggrgroup.is-mandatory-only-valid</td>
+      <td>false</td>
+      <td>Whether allow a Cube only has the base cuboid.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.enabled</td>
+      <td>true</td>
+      <td>Whether enable cubeplanner</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.enabled-for-existing-cube</td>
+      <td>true</td>
+      <td>Whether enable cubeplanner for existing cube</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.algorithm-threshold-greedy</td>
+      <td>8</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.expansion-threshold</td>
+      <td>15.0</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.recommend-cache-max-size</td>
+      <td>200</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.mandatory-rollup-threshold</td>
+      <td>1000</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.cubeplanner.algorithm-threshold-genetic</td>
+      <td>23</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.rowkey.max-size</td>
+      <td>63</td>
+      <td>Max columns in Rowkey</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.max-building-segments</td>
+      <td>10</td>
+      <td>Max building segments in one Cube</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.allow-appear-in-multiple-projects</td>
+      <td>false</td>
+      <td>Whether allow a Cueb appeared in multiple projects</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.cube.gtscanrequest-serialization-level</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.cube.is-automerge-enabled</td>
+      <td>true</td>
+      <td>Whether enable auto merge.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.job.log-dir</td>
+      <td>/tmp/kylin/logs</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.job.allow-empty-segment</td>
+      <td>true</td>
+      <td>Whether tolerant data source is emtpy.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.job.max-concurrent-jobs</td>
+      <td>10</td>
+      <td>Max concurrent running jobs</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.sampling-percentage</td>
+      <td>100</td>
+      <td>Data sampling percentage, to calculate Cube statistics; Default be all.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-enabled</td>
+      <td>false</td>
+      <td>Whether send email notification on job error/succeed.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-enable-starttls</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-port</td>
+      <td>25</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-host</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-username</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-password</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-mail-sender</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.notification-admin-emails</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.retry</td>
+      <td>0</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.job.scheduler.priority-considered</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.scheduler.priority-bar-fetch-from-queue</td>
+      <td>20</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.scheduler.poll-interval-second</td>
+      <td>30</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.error-record-threshold</td>
+      <td>0</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.job.cube-auto-ready-enabled</td>
+      <td>true</td>
+      <td>Whether enable the cube automatically when finish build</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.keep-flat-table</td>
+      <td>false</td>
+      <td>Whether keep the intermediate Hive table after job finished.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.database-for-flat-table</td>
+      <td>default</td>
+      <td>Hive database to create the intermediate table.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.flat-table-storage-format</td>
+      <td>SEQUENCEFILE</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.flat-table-field-delimiter</td>
+      <td>\u001F</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.redistribute-flat-table</td>
+      <td>true</td>
+      <td>Whether or not to redistribute the flat table.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.redistribute-column-count</td>
+      <td>3</td>
+      <td>The number of redistribute column</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.client</td>
+      <td>cli</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.beeline-shell</td>
+      <td>beeline</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.beeline-params</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.enable-sparksql-for-table-ops</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.sparksql-beeline-shell</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.sparksql-beeline-params</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.table-dir-create-first</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.flat-table-cluster-by-dict-column</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.default-varchar-precision</td>
+      <td>256</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.default-char-precision</td>
+      <td>255</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.default-decimal-precision</td>
+      <td>19</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.hive.default-decimal-scale</td>
+      <td>4</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.connection-url</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.driver</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.dialect</td>
+      <td>default</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.user</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.pass</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.sqoop-home</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.sqoop-mapper-num</td>
+      <td>4</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.source.jdbc.field-delimiter</td>
+      <td>|</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.default</td>
+      <td>2</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.table-name-prefix</td>
+      <td>KYLIN_</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.namespace</td>
+      <td>default</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.cluster-fs</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.cluster-hdfs-config-file</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.coprocessor-local-jar</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.min-region-count</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-region-count</td>
+      <td>500</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.hfile-size-gb</td>
+      <td>2.0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.run-local-coprocessor</td>
+      <td>false</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.coprocessor-mem-gb</td>
+      <td>3.0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.partition.aggr-spill-enabled</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.partition.max-scan-bytes</td>
+      <td>3221225472</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.coprocessor-timeout-seconds</td>
+      <td>0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-fuzzykey-scan</td>
+      <td>200</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-fuzzykey-scan-split</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-visit-scanrange</td>
+      <td>1000000</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.scan-cache-rows</td>
+      <td>1024</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.region-cut-gb</td>
+      <td>5.0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-scan-result-bytes</td>
+      <td>5242880</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.compression-codec</td>
+      <td>none</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.rowkey-encoding</td>
+      <td>FAST_DIFF</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.block-size-bytes</td>
+      <td>1048576</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.small-family-block-size-bytes</td>
+      <td>65536</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.owner-tag</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.endpoint-compress-result</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.max-hconnection-threads</td>
+      <td>2048</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.core-hconnection-threads</td>
+      <td>2048</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.hconnection-threads-alive-seconds</td>
+      <td>60</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.storage.hbase.replication-scope</td>
+      <td>0</td>
+      <td>whether config hbase cluster replication</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.lib-dir</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.reduce-input-mb</td>
+      <td>500</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.reduce-count-ratio</td>
+      <td>1.0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.min-reducer-number</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.max-reducer-number</td>
+      <td>500</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.mapper-input-rows</td>
+      <td>1000000</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.max-cuboid-stats-calculator-number</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.uhc-reducer-count</td>
+      <td>1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.build-uhc-dict-in-additional-step</td>
+      <td>false</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.build-dict-in-reducer</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.mr.yarn-check-interval-seconds</td>
+      <td>10</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.env.hadoop-conf-dir</td>
+      <td> </td>
+      <td>Hadoop conf directory; If not specified, parse from environment.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark.rdd-partition-cut-mb</td>
+      <td>10.0</td>
+      <td>Spark Cubing RDD partition split size.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark.min-partition</td>
+      <td>1</td>
+      <td>Spark Cubing RDD min partition number</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark.max-partition</td>
+      <td>5000</td>
+      <td>RDD max partition number</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark.storage-level</td>
+      <td>MEMORY_AND_DISK_SER</td>
+      <td>RDD persistent level.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark-conf.spark.hadoop.dfs.replication</td>
+      <td>2</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark-conf.spark.hadoop.mapreduce.output.fileoutputformat.compress</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark-conf.spark.hadoop.mapreduce.output.fileoutputformat.compress.codec</td>
+      <td>org.apache.hadoop.io.compress.DefaultCodec</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark-conf-mergedict.spark.executor.memory</td>
+      <td>6G</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.engine.spark-conf-mergedict.spark.memory.fraction</td>
+      <td>0.2</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.skip-empty-segments</td>
+      <td>true</td>
+      <td>Whether directly skip empty segment (metadata shows size be 0) when run SQL query.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.force-limit</td>
+      <td>-1</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.max-scan-bytes</td>
+      <td>0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.max-return-rows</td>
+      <td>5000000</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.large-query-threshold</td>
+      <td>1000000</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.cache-threshold-duration</td>
+      <td>2000</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.cache-threshold-scan-count</td>
+      <td>10240</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.cache-threshold-scan-bytes</td>
+      <td>1048576</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.security-enabled</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.cache-enabled</td>
+      <td>true</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.timeout-seconds</td>
+      <td>0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.timeout-seconds-coefficient</td>
+      <td>0.5</td>
+      <td>the coefficient to controll query timeout seconds</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.runner-class-name</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.update-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.cache-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.url</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.driver</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.username</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.password</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.pool-max-total</td>
+      <td>8</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.pool-max-idle</td>
+      <td>8</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.pushdown.jdbc.pool-min-idle</td>
+      <td>0</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>kylin.query.security.table-acl-enabled</td>
+      <td>true</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.query.calcite.extras-props.conformance</td>
+      <td>LENIENT</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.calcite.extras-props.caseSensitive</td>
+      <td>true</td>
+      <td>Whether enable case sensitive</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.calcite.extras-props.unquotedCasing</td>
+      <td>TO_UPPER</td>
+      <td>Options: UNCHANGED, TO_UPPER, TO_LOWER</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.calcite.extras-props.quoting</td>
+      <td>DOUBLE_QUOTE</td>
+      <td>Options: DOUBLE_QUOTE, BACK_TICK, BRACKET</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.statement-cache-max-num</td>
+      <td>50000</td>
+      <td>Max number for cache query statement</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.statement-cache-max-num-per-key</td>
+      <td>50</td>
+      <td> </td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.enable-dict-enumerator</td>
+      <td>false</td>
+      <td>Whether enable dict enumerator</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>kylin.query.enable-dynamic-column</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.mode</td>
+      <td>all</td>
+      <td>Kylin node mode: all|job|query.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.cluster-servers</td>
+      <td>localhost:7070</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.cluster-name</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.query-metrics-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.query-metrics2-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.auth-user-cache.expire-seconds</td>
+      <td>300</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.auth-user-cache.max-entries</td>
+      <td>100</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.server.external-acl-provider</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.security.ldap.user-search-base</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.security.ldap.user-group-search-base</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.security.acl.admin-role</td>
+      <td> </td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.web.timezone</td>
+      <td>PST</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.web.cross-domain-enabled</td>
+      <td>true</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.web.export-allow-admin</td>
+      <td>true</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.web.export-allow-other</td>
+      <td>true</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>kylin.web.dashboard-enabled</td>
+      <td>false</td>
+      <td> </td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
 
-**kylin高级配置**
+## **kylin高级配置**
 
-1. 在 Cube 级别重写默认的 kylin.properties   
-   conf/kylin.properties 里有许多的参数，控制/影响着 Kylin 的行为；大多数参数是全局配置的，例如 security 或 job 相关的参数；有一些是 Cube 相关的；这些 Cube 相关的参数可以在任意 Cube 级别进行自定义。在GUI界面创建cube时可以自定义   
-   两个示例：
+更多kylin高级配置参考 [官方文档](ttp://kylin.apache.org/cn/docs/install/advance_settings.html) 。
 
-   - kylin.cube.algorithm：定义了 job engine 选择的 Cubing 算法；默认值为 “auto”，意味着 engine 会通过采集数据动态的选择一个算法 (“layer” or “inmem”)。如果您很了解 Kylin 和 您的数据/集群，您可以直接设置您喜欢的算法。
+## kylin测试
 
-   - kylin.storage.hbase.region-cut-gb：定义了创建 HBase 表时一个 region 的大小。默认一个 region “5” (GB)。对于小的或中等大小的 cube 来说它的值可能太大了，所以您可以设置更小的值来获得更多的 regions，可获得更好的查询性能。
-
-2. 在 Cube 级别重写默认的 Hadoop job conf 值   
-   conf/kylin_job_conf.xml 和 conf/kylin_job_conf_inmem.xml 管理 Hadoop jobs 的默认配置。如果您想通过 cube 自定义配置，您可以通过和上面相似的方式获得，但是需要加一个前缀 [kylin.engine.mr](http://kylin.engine.mr/).config-override.；当提交 jobs 这些配置会被解析并应用。下面是两个示例:
-
-   - 希望 job 从 Yarn 获得更多 memory，您可以这样定义：[kylin.engine.mr](http://kylin.engine.mr/).config-override.mapreduce.map.java.opts=-Xmx7g 和 [kylin.engine.mr](http://kylin.engine.mr/).config-override.mapreduce.map.memory.mb=8192
-
-   - 希望 cube’s job 使用不同的 Yarn resource queue，您可以这样定义：[kylin.engine.mr](http://kylin.engine.mr/).config-override.mapreduce.job.queuename=myQueue (“myQueue” 是一个举例，可更换成您的 queue 名字)
-
-3. 在 Cube 级别重写默认的 Hive job conf 值   
-   conf/kylin_hive_conf.xml 管理运行时 Hive job 的默认配置 (例如创建 flat hive table)。如果您想通过 cube 自定义配置，您可以通过和上面相似的方式获得，但需要另一个前缀 kylin.source.hive.config-override.；当运行 “hive -e” 或 “beeline” 命令，这些配置会被解析并应用。请看下面示例:
-
-   - 希望 hive 使用不同的 Yarn resource queue，您可以这样定义：kylin.source.hive.config-override.mapreduce.job.queuename=myQueue (“myQueue” 是一个举例，可更换成您的 queue 名字)
-
-4. 在 Cube 级别重写默认的 Spark conf 值   
-   Spark 的配置是在 conf/kylin.properties 中管理，前缀为 kylin.engine.spark-conf.。例如，如果您想要使用 job queue “myQueue” 运行 Spark，设置 “kylin.engine.spark-conf.spark.yarn.queue=myQueue” 会让 Spark 在提交应用时获取 “spark.yarn.queue=myQueue”。参数可以在 Cube 级别进行配置，将会覆盖 conf/kylin.properties 中的默认值。
-
-5. 支持压缩   
-   默认情况，Kylin 不支持压缩，在产品环境这不是一个推荐的设置，但对于新的 Kylin 用户是个权衡。一个合适的算法将会减少存储负载。不支持的算法会阻碍 Kylin job build。Kylin 可以使用三种类型的压缩，HBase 表压缩，Hive 输出压缩 和 MR jobs 输出压缩。
-
-   - HBase 表压缩   
-     压缩设置通过 kylin.hbase.default.compression.codec 定义在 kyiln.properties 中，默认值为 none。有效的值包括 none，snappy，lzo，gzip 和 lz4。在变换压缩算法前，请确保您的 Hbase 集群支持所选算法。尤其是 snappy，lzo 和 lz4，不是所有的 Hadoop 分布式都会包含。
-
-   - Hive 输出压缩   
-     压缩设置定义在 kylin_hive_conf.xml。默认设置为 empty 其利用了 Hive 的默认配置。如果您重写配置，请在 kylin_hive_conf.xml 中添加 (或替换) 下列属性。以 snappy 压缩为例:
-
-<property>   
-<name>mapreduce.map.output.compress.codec</name>   
-<value>org.apache.hadoop.io.compress.SnappyCodec</value>   
-<description></description>   
-</property>   
-<property>   
-<name>mapreduce.output.fileoutputformat.compress.codec</name>   
-<value>org.apache.hadoop.io.compress.SnappyCodec</value>   
-<description></description>   
-</property>
-
-- MR jobs 输出压缩 压缩设置定义在 kylin_job_conf.xml 和 kylin_job_conf_inmem.xml中。默认设置为 empty 其利用了 MR 的默认配置。如果您重写配置，请在 kylin_job_conf.xml 和 kylin_job_conf_inmem.xml 中添加 (或替换) 下列属性。以 snappy 压缩为例:
-
-<property>   
-<name>mapreduce.map.output.compress.codec</name>   
-<value>org.apache.hadoop.io.compress.SnappyCodec</value>   
-<description></description>   
-</property>   
-<property>   
-<name>mapreduce.output.fileoutputformat.compress.codec</name>   
-<value>org.apache.hadoop.io.compress.SnappyCodec</value>   
-<description></description>   
-</property>
-
-**注：** 压缩设置只有在重启 Kylin 服务器实例后才会生效。
-
-1. 分配更多内存给 Kylin 实例 打开 bin/setenv.sh，这里有两个 KYLIN_JVM_SETTINGS 环境变量的样例设置；默认设置较小 (最大为 4GB)，您可以注释它然后取消下一行的注释来给其分配 16GB:
-
-export KYLIN_JVM_SETTINGS="-Xms1024M -Xmx4096M -Xss1024K -XX:MaxPermSize=128M -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$KYLIN_HOME/logs/kylin.gc.$$ -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=64M"   
-
-# export KYLIN_JVM_SETTINGS="-Xms16g -Xmx16g -XX:MaxPermSize=512m -XX:NewSize=3g -XX:MaxNewSize=3g -XX:SurvivorRatio=4 -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:CMSInitiatingOccupancyFraction=70 -XX:+DisableExplicitGC -XX:+HeapDumpOnOutOfMemoryError"
-
-1. 启用多个任务引擎 从 2.0 开始, Kylin 支持多个任务引擎一起运行，相比于默认单任务引擎的配置，多引擎可以保证任务构建的高可用。 使用多任务引擎，你可以在多个 Kylin 节点上配置它的角色为 job 或 all。为了避免它们之间产生竞争，需要启用分布式任务锁，请在 kylin.properties 里配置：
-
-kylin.job.scheduler.default=2   
-kylin.job.lock=org.apache.kylin.storage.hbase.util.ZookeeperDistributedJobLock
-
-并记得将所有任务和查询节点的地址注册到 kylin.server.cluster-servers.
-
-1. 支持邮件通知 Kylin 可以在 job 完成/失败的时候发送邮件通知；编辑 conf/kylin.properties，设置如下参数使其生效:
-
-mail.enabled=true   
-mail.host=your-smtp-server   
-mail.username=your-smtp-account   
-mail.password=your-smtp-pwd   
-mail.sender=your-sender-address   
-kylin.job.admin.dls=adminstrator-address
-
-重启 Kylin 服务器使其生效。设置 mail.enabled 为 false 令其失效。   
-所有的 jobs 管理员都会收到通知。建模者和分析师需要将邮箱填写在 cube 创建的第一页的 “Notification List” 中，然后即可收到关于该 cube 的通知。
-
-kylin测试
-
-导入官方测试数据进行测试
+- 导入官方测试数据进行测试
 
 **查看hive default库中的表**
-
+```
 hive> show databases;   
 OK   
 default   
@@ -228,13 +1366,13 @@ hive> show tables;
 OK   
 Time taken: 0.032 seconds   
 hive>
-
+```
 **执行命令导入数据**
-
+```
 cd /application/hadoop/app/kylin/bin/   
 ./sample.sh
-
-如果没有错误日志倒数两行如下：
+```
+- 如果没有错误日志倒数两行如下：
 
 Sample cube is created successfully in project 'learn_kylin'.   
 Restart Kylin Server or click Web UI => System Tab => Reload Metadata to take effect
@@ -243,7 +1381,7 @@ Restart Kylin Server or click Web UI => System Tab => Reload Metadata to take ef
 重启kylin生效，或者通过：webUI => System => Reload Metadata，重新导入元数据信息即可
 
 **查看hive default库多了5张表**
-
+```
 hive> show databases;   
 OK   
 default   
@@ -261,7 +1399,7 @@ kylin_country
 kylin_sales   
 Time taken: 0.032 seconds, Fetched: 5 row(s)   
 hive>
-
+```
 **导入元数据**   
 登录kylin web界面，选择 system -> Reload Metadata
 
@@ -280,10 +1418,10 @@ hive>
 **查看cube的构建任务**   
 点击上方 `Monitor` 按钮，点击刚才创建的cube任务上面的 `>` 图标即可查看详细任务执行状态   
 我的cube任务在执行到中途时，出现报错
-
+```
 Exception:[java.net](http://java.net/).ConnectException: Call From pycdhnode1/192.168.0.158 to 0.0.0.0:10020 failed on connection exception:[java.net](http://java.net/).ConnectException: Connection refused; For more details see:[http://wiki.apache.org/hadoop/ConnectionRefused](http://wiki.apache.org/hadoop/ConnectionRefused)   
 [java.net](http://java.net/).ConnectException: Call From pycdhnode1/192.168.0.158 to 0.0.0.0:10020 failed on connection exception:[java.net](http://java.net/).ConnectException: Connection refused; For more details see:[http://wiki.apache.org/hadoop/ConnectionRefused](http://wiki.apache.org/hadoop/ConnectionRefused)
-
+```
 - 任务报错可以在web界面详细任务执行状态中查看，也可以在kylin安装目录logs/kylin.log中查看
 
 经过网上查阅资料，发现原因是 `hadoop` 的 `historyserver` 服务没有启动。 `historyserver` 历史服务器，管理者可以通过历史服务器查看已经运行完成的Mapreduce作业记录，比如用了多少个Map、多少个Reduce、作业提交时间、作业启动时间、作业完成时间等信息。默认情况下，hadoop历史服务器是没有启动的，需要进行参数配置才能启动。
@@ -341,7 +1479,7 @@ hadoop集群中所有主机 `vi /application/hadoop/app/hadoop/etc/hadoop/yarn-s
 
 **查询构建完成的cube信息**   
 点击上面 `Insight` 按钮 -> `New Query` 中填写以下sql：
-
+```
 select sum(KYLIN_SALES.PRICE) as price_sum,KYLIN_CATEGORY_GROUPINGS.META_CATEG_NAME,KYLIN_CATEGORY_GROUPINGS.CATEG_LVL2_NAME   
 from KYLIN_SALES   
 inner join KYLIN_CATEGORY_GROUPINGS   
@@ -350,7 +1488,7 @@ KYLIN_SALES.LEAF_CATEG_ID = KYLIN_CATEGORY_GROUPINGS.LEAF_CATEG_ID and
 KYLIN_SALES.LSTG_SITE_ID = KYLIN_CATEGORY_GROUPINGS.SITE_ID   
 group by KYLIN_CATEGORY_GROUPINGS.META_CATEG_NAME,KYLIN_CATEGORY_GROUPINGS.CATEG_LVL2_NAME   
 order by KYLIN_CATEGORY_GROUPINGS.META_CATEG_NAME asc,KYLIN_CATEGORY_GROUPINGS.CATEG_LVL2_NAME desc
-
+```
 点击查询，得到结果
 
 - 点击 `Export` 按钮可以导入结果为 `csv`
@@ -358,7 +1496,7 @@ order by KYLIN_CATEGORY_GROUPINGS.META_CATEG_NAME asc,KYLIN_CATEGORY_GROUPINGS.C
 - 点击 `Visualization` 按钮可以已图标的形式查看结果，有 `Line Chart` ， `Bar Chart`， `Pie Chart` 三种类型的图表
 
 **查看hive default库多了cube任务创建的数据表**
-
+```
 hive> use default;   
 OK   
 Time taken: 0.04 seconds   
@@ -372,11 +1510,11 @@ kylin_intermediate_kylin_sales_cube_67081e98_0771_4133_b3da_8d9f80475343
 kylin_sales   
 Time taken: 0.024 seconds, Fetched: 6 row(s)   
 hive>
-
+```
 - 其中 `kylin_intermediate_kylin_sales_cube_67081e98_0771_4133_b3da_8d9f80475343`为 cube任务创建的表，cube任务每次重新构建时都会删除老的数据表，新建一个的表
 
-集群模式kylin安装
+## 集群模式kylin安装
 
-**有空补充**
+集群部署模式[官方地址](http://kylin.apache.org/cn/docs/install/kylin_cluster.html)
 
 更多kylin教程参照官网：[http://kylin.apache.org/cn/docs/index.html](http://kylin.apache.org/cn/docs/index.html)
