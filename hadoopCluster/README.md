@@ -17,19 +17,20 @@
 
 目前文档包含一下服务
 
-| 软件     | 版本                   |                                                                                                                      
-| ------- | ---------------------- | 
-| hadoop | 2.6.0| 
+| 软件     | 版本                   |
+| ------- | ---------------------- |
+| hadoop | 2.6.0|
 |zookeeeper | 3.4.5 |
 |hbase  |1.2.0|
 |hive|1.1.0|
+|sqoop|1.4.7|
 |kylin|2.4.0|
 |spark on yarn|2.3.1|
 |kafka|2.12|
 |kafka-manager|1.3.3.17|
 |azkaban|3.59.0|
-|elasticsearch |6.3.1 | 
-|kibana |6.3.1 | 
+|elasticsearch |6.3.1 |
+|kibana |6.3.1 |
 
 # 部署指南
 服务部署流程请参照具体的部署流程文档
@@ -52,6 +53,8 @@
         <td><a href="doc/install/07- kylin部署.md">07 kylin部署</a></td>
         <td><a href="doc/install/08-azkaban.md">08 azkaban</a></td>
         <td><a href="doc/install/09-elasticsearch+kibana.md">09 elasticsearch+kibana</a></td>
+        <td><a href="doc/install/10-sqoop部署.md">10-sqoop部署</a></td>
     </tr>
 </table>
+
 
