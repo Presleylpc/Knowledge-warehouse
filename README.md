@@ -25,7 +25,7 @@
 | ------ | ------------|
 |[大数据集群](hadoopCluster/README.md)	|包含Hadoop及大数据相关服务的**安装**，介绍等内容。|
 |[docker/kubenetes]()|docker、docker-compose部署、使用文档。kubenetes 部署、使用文档。|
-|[python]()|python在运维工作中常用的库、以及常用方式。 |
+|[python](python/README.md)|python在运维工作中常用的库、以及常用方式。 |
 
 
 

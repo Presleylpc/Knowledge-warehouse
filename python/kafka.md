@@ -1,4 +1,158 @@
-#  kafka使用
+#  Kafka使用
+
+## 生产者
+
+生产者 有好三个模块可供选择`confluent_kafka`、`SimpleProducer`、`kafka-python`模块的KafkaProducer。
+
+**confluent_kafka**：只能用于linux平台
+**SimpleProducer**、**kafka-python**:  可与用windows平台，SimpleProducer速度更快一点，但timestamp字段 不正确。windows下使用kafka-python模块的KafkaProducer，速度虽然没有SimpleProducer快，但是产生消息的 timestamp 字段正常。此timestamp字段在 sync_slave 当加入新的消费者组时应该会使用到(按照timestamp查找offset)。
+
+### confluent_kafka
+
+```
+from confluent_kafka import Producer
+class KafkaP:
+    """
+    生产模块：根据不同的key，区分消息
+    """
+    def __init__(self, bootstrap_servers, compression_type='gzip'):
+        self.bootstrap_servers = bootstrap_servers
+        self.compression_type = compression_type
+        self.message_max_bytes = 52428800   # 不要大于kafka服务设置
+        if self.compression_type is None:
+            self.producer = Producer(
+                                    {
+                                        'bootstrap.servers': self.bootstrap_servers,
+                                        'message.max.bytes': self.message_max_bytes
+                                    }
+                                    )
+        else:
+            self.producer = Producer(
+                                    {
+                                        'bootstrap.servers': self.bootstrap_servers,
+                                        'message.max.bytes': self.message_max_bytes,
+                                        'compression.type': self.compression_type
+                                    }
+                                    )
+    def send_data(self, message, topic):
+        # self.producer.send(topic=topic, key=key, value=message)
+        self.producer.produce(topic, message.encode('utf-8'))
+        # self.producer.flush()
+    def reconnection_producer(self):
+        if self.compression_type is None:
+            self.producer = Producer(
+                                    {
+                                        'bootstrap.servers': self.bootstrap_servers,
+                                        'message.max.bytes': self.message_max_bytes
+                                    }
+                                    )
+        else:
+            self.producer = Producer(
+                                    {
+                                        'bootstrap.servers': self.bootstrap_servers,
+                                        'message.max.bytes': self.message_max_bytes,
+                                        'compression.type': self.compression_type
+                                    }
+                                    )
+    def close_producer(self):
+        self.producer.flush()
+```
+
+### SimpleProducer
+```
+from kafka import SimpleProducer, SimpleClient
+
+class KafkaP:
+    """
+    生产模块：根据不同的key，区分消息
+    """
+
+    def __init__(self, bootstrap_servers):
+        self.bootstrap_servers = bootstrap_servers
+        self.retries = 3
+        self.ack = 0
+        self.async = True
+        self.client = SimpleClient(hosts=self.bootstrap_servers)
+        self.producer = SimpleProducer(client=self.client,
+                                       async_send=self.async,
+                                       req_acks=SimpleProducer.ACK_NOT_REQUIRED
+                                       )
+
+    def send_data(self, message, topic):
+        # self.producer.send(topic=topic, key=key, value=message)
+        self.producer.send_messages(topic, message.encode('utf-8'))
+        # self.producer.send_messages(topic, bytes(message))
+        # self.producer.flush()
+
+    def reconnection_producer(self):
+        self.client = SimpleClient(hosts=self.bootstrap_servers)
+        self.producer = SimpleProducer(client=self.client,
+                                       async_send=self.async,
+                                       req_acks=SimpleProducer.ACK_NOT_REQUIRED
+                                       )
+
+    def close_producer(self):
+        # self.producer.flush()
+        self.producer.stop()
+        self.client.close()
+```
+
+### python-kafka
+```
+from kafka import KafkaProducer
+
+class KafkaP:
+    """
+    生产模块：根据不同的key，区分消息
+    """
+
+    def __init__(self, bootstrap_servers, compression_type='gzip'):
+        self.bootstrap_servers = bootstrap_servers
+        self.retries = 3
+        self.ack = 0
+        self.linger_ms = 0
+        self.compression_type = compression_type
+        if self.compression_type is None:
+            self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
+                                          retries=self.retries,
+                                          acks=self.ack,
+                                          linger_ms=self.linger_ms,
+                                          )
+        else:
+            self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
+                                          retries=self.retries,
+                                          acks=self.ack,
+                                          linger_ms=self.linger_ms,
+                                          compression_type=self.compression_type
+                                          )
+
+    def send_data(self, message, topic, key=None):
+        self.producer.send(topic=topic, key=key, value=message)
+        # print message
+
+    def reconnection_producer(self):
+        if self.compression_type is None:
+            self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
+                                          retries=self.retries,
+                                          acks=self.ack,
+                                          linger_ms=self.linger_ms
+                                          )
+        else:
+            self.producer = KafkaProducer(bootstrap_servers=self.bootstrap_servers,
+                                          retries=self.retries,
+                                          acks=self.ack,
+                                          linger_ms=self.linger_ms,
+                                          compression_type=self.compression_type
+                                          )
+
+    def close_producer(self):
+        self.producer.flush()
+        self.producer.close()
+```
+
+
+## 消费者
+
 ```
 from kafka import KafkaConsumer
 from kafka import TopicPartition
