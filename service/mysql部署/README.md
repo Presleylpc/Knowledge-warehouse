@@ -10,12 +10,12 @@ MySQL版本： mysql-5.6.42
 
 ##文档清单
 
-| 编号 | 项目     | 连接                                                         | 说明            |
-| ---- | -------- | ------------------------------------------------------------ | --------------- |
-| 1    | 安装包   | [mysql-5.6.42-linux-glibc2.12-x86_64.tar.gz](https://pan.baidu.com/s/1GVFQvnuVmcp2MMZcFs1Nug) | mysql二进制包   |
-| 2    | 知识文档 | [knowledge](knowledge)                                       | MySQL知识点整理 |
-| 3    | 部署文档 | [ansible deployment](./ansible_deploy)                       | ansible部署文档 |
-| 4    | 监控方式 | [monitor](Monitor)                                           | 监控文档        |
+| 编号 | 项目           | 连接                                                         | 说明            |
+| ---- | -------------- | ------------------------------------------------------------ | --------------- |
+| 1    | 安装包         | [mysql-5.6.42-linux-glibc2.12-x86_64.tar.gz](https://pan.baidu.com/s/1GVFQvnuVmcp2MMZcFs1Nug) | mysql二进制包   |
+| 2    | 知识文档       | [knowledge](knowledge)                                       | MySQL知识点整理 |
+| 3    | 自动化部署文档 | [ansible deployment](./ansible_deploy)                       | ansible部署文档 |
+| 4    | 监控方式       | [monitor](Monitor)                                           | 监控文档        |
 
 ## 部署步骤
 
