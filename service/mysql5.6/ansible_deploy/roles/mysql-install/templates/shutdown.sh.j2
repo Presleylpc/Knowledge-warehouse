@@ -5,7 +5,7 @@
 
 port=3306
 mysql_user="root"
-mysql_pwd="1qaz@WSXabc"
+mysql_pwd="{{ password }}"
 CmdPath="/application/mysql/bin"
 mysql_sock="/data/${port}/mysql.sock"
 
@@ -13,13 +13,13 @@ mysql_sock="/data/${port}/mysql.sock"
 #stop function
 function_stop_mysql()
 {
-	if [ ! -e "$mysql_sock" ];then
-		printf "MySQL is stopped!\n"
-	exit
-	else
-		printf "stopping MySQL...\n"
-		${CmdPath}/mysqladmin -u${mysql_user} -p${mysql_pwd} -S /data/${port}/mysql.sock shutdown
-	fi
+​	if [ ! -e "$mysql_sock" ];then
+​		printf "MySQL is stopped!\n"
+​	exit
+​	else
+​		printf "stopping MySQL...\n"
+​		${CmdPath}/mysqladmin -u${mysql_user} -p${mysql_pwd} -S /data/${port}/mysql.sock shutdown
+​	fi
 }
 
 function_stop_mysql
