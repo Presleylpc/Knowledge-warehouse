@@ -87,21 +87,22 @@ java -jar confluence_keygen.jar
 
 然后把上面保存的Server ID（服务器ID）粘贴进去，然后点击“.gen!”，保存生成的key。
 
-4、打补丁。点击“.patch!”，选择第2步中重命名的atlassian-extras-2.4.jar，会生成新的atlassian-extras-2.4.jar，旧的jar包会被改为.bak。
+4. 打补丁。点击“.patch!”，选择第2步中重命名的atlassian-extras-2.4.jar，会生成新的atlassian-extras-2.4.jar，旧的jar包会被改为.bak。
 
-5、上传新的atlassian-extras-2.4.jar和破解包下的Confluence-5.6.6-language-pack-zh_CN.jar、mysql-connector-java-5.1.39-bin.jar到/opt/atlassian/confluence/confluence/WEB-INF/lib，并且删除atlassian-extras-decoder-v2-3.2.jar。
+5. 上传新的atlassian-extras-2.4.jar和破解包下的Confluence-5.6.6-language-pack-zh_CN.jar、mysql-connector-java-5.1.39-bin.jar到/opt/atlassian/confluence/confluence/WEB-INF/lib，并且删除atlassian-extras-decoder-v2-3.2.jar。
 
-6、启动confluence
+6. 启动confluence
 
 ```
 /etc/init.d/confluence start
 ```
 
-7、把生成的key复制粘贴到License Key框中，点击“Next”，如果顺利进入选择数据库页面，说明破解成功
+7. 把生成的key复制粘贴到License Key框中，点击“Next”，如果顺利进入选择数据库页面，说明破解成功
 
 ![confluence数据库](pic/confluence_2.png)
 
-后面就是设置连接数据库了。。。
+8.  数据库配置详见[https://confluence.atlassian.com/doc/database-setup-for-mysql-128747.html](https://confluence.atlassian.com/doc/database-setup-for-mysql-128747.html)
+
 
 注意，连接mysql的时候，confluence默认连接confluence库，需要提前创建好。
 
