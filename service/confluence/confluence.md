@@ -15,9 +15,9 @@
 - 开始安装
 
 ```
-chmod +x atlassian-confluence-6.1.3-x64.bin
+chmod +x atlassian-confluence-6.7.1-x64.bin
 
-./atlassian-confluence-6.1.3-x64.bin
+./atlassian-confluence-6.7.1-x64.bin
 ```
 
 - 需要交互确认
