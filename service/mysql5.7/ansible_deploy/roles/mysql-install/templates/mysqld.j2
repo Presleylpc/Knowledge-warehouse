@@ -1,0 +1,14 @@
+[Unit]
+Description=MySQL {{ port }}
+After=network.target
+
+[Service]
+Type=forking
+PIDFile={{ mysql_data_dir }}/{{ port }}/logs/mysql.pid
+ExecStart={{ mysql_data_dir }}/{{ port }}/bin/startup.sh
+ExecReload=
+ExecStop={{ mysql_data_dir }}/{{ port }}/bin/shutdown.sh
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

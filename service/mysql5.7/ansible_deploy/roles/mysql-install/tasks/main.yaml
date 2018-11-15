@@ -1,0 +1,77 @@
+- name: 创建mysql用户
+  user: name=mysql system=True
+
+- name: 准备安装目录
+  file: name=/application/mysql state=directory
+
+- name: 检查mysql是否部署
+  stat: path={{ mysql_dir }}
+  register: p
+
+- name: 下发数据库安装包
+  unarchive: src={{ base_dir }}/mysql-5.6.42-linux-glibc2.12-x86_64.tar.gz dest=/application/mysql
+  when: p.stat.isreg is not defined
+  tags: pull_packages
+
+- name: 软连接
+  file: state=link src=/application/mysql-5.6.42-linux-glibc2.12-x86_64 dest={{ mysql_dir }}
+  when: p.stat.isreg is not defined
+  
+- name: 修改mysqld_safe
+  shell: sed -i "s#/usr/local/mysql#{{ mysql_dir }}#g" {{ mysql_dir }}/bin/mysqld_safe
+  when: p.stat.isreg is not defined 
+
+- name: 判断初始化
+  stat: path={{ mysql_data_dir }}/{{ port }}
+  register: p
+
+- name: 准备mysql相关目录
+  file: name={{ mysql_data_dir }}/{{ port }}/{{ item }} state=directory owner=mysql
+  with_items:
+  - logs
+  - bin
+  when: p.stat.isreg is not defined
+  
+- name: 创建数据库错误日志
+  file: name={{ mysql_data_dir }}/{{ port }}/logs/mysqld.log state=touch owner=mysql
+  
+- name: 分发数据库配置
+  template: src=my.cnf.j2 dest={{ mysql_data_dir }}/{{ port }}/my.cnf mode=0644
+  when: p.stat.isreg is not defined
+
+- name: 分发数据库启动/关闭脚本
+  template: src={{ item.src }} dest={{ mysql_data_dir }}/{{ port }}/bin/{{ item.des }} mode=0700 owner=mysql
+  with_items:
+  - {src: "shutdown.sh.j2", des: "shutdown.sh"}
+  - {src: "startup.sh.j2", des: "startup.sh"}
+  - {src: "password_file.j2", des: "password"}
+  when: p.stat.isreg is not defined
+  
+- name: 分发数据库系统服务文件
+  template: src=mysqld.j2 dest=/usr/lib/systemd/system/mysql{{ port }}.service mode=0700
+  when: p.stat.isreg is not defined
+  
+
+- name: 初始化mysql
+  shell: " cd {{ mysql_dir }} && \
+  		bin/mysql_install_db \
+        --basedir={{ mysql_dir }} \
+        --datadir={{ mysql_data_dir }}/{{ port }}/mysql_data/ \
+        --user=mysql"
+  when: p.stat.isreg is not defined
+  tags: db_init 
+
+- name: 修改数据目录权限
+  shell: "chown -R mysql.mysql {{ mysql_data_dir }}/{{ port }}" 
+  when: p.stat.isreg is not defined
+
+- name: 启动数据库
+  systemd:
+    state: started
+    name: mysql{{ port }}
+  when: p.stat.isreg is not defined
+
+- name: 配置数据库密码
+  shell: "/application/mysql/mysql_bin/bin/mysql -uroot -p$(sed -n '2p' /root/.mysql_secret) -S  /application/mysql/mysql_data/3301/logs/mysql.sock  --connect-expired-password < {{ mysql_data_dir }}/{{ port }}/bin/password"
+  when: p.stat.isreg is not defined
+

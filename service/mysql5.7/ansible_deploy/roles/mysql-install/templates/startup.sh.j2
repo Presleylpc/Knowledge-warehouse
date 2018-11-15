@@ -1,0 +1,24 @@
+#!/bin/sh
+############################
+#this script is created by hu at 2017-1-18
+############################
+
+port={{ port }}
+mysql_user="root"
+mysql_pwd="1qaz@WSXabc"
+CmdPath="{{ mysql_dir }}/bin"
+mysql_sock="{{ mysql_data_dir }}/${port}/mysql.sock"
+
+#starup_function
+function_start_mysql()
+{
+    if [ ! -e "$mysql_sock" ];then
+	printf "starting MySQL...\n"
+	${CmdPath}/mysqld_safe --defaults-file={{ mysql_data_dir }}/${port}/my.cnf 2>&1 >/dev/null &
+     else
+	printf "MySQL is running...\n"
+     exit
+     fi
+}
+
+function_start_mysql
