@@ -9,12 +9,12 @@
   register: p
 
 - name: 下发数据库安装包
-  unarchive: src={{ base_dir }}/mysql-5.6.42-linux-glibc2.12-x86_64.tar.gz dest=/application/mysql
+  unarchive: src={{ base_dir }}/mysql-5.7.24-el7-x86_64.tar.gz dest=/application/mysql
   when: p.stat.isreg is not defined
   tags: pull_packages
 
 - name: 软连接
-  file: state=link src=/application/mysql-5.6.42-linux-glibc2.12-x86_64 dest={{ mysql_dir }}
+  file: state=link src=/application/mysql/mysql-5.7.24-el7-x86_64 dest={{ mysql_dir }}
   when: p.stat.isreg is not defined
   
 - name: 修改mysqld_safe
