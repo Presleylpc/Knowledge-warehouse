@@ -7,19 +7,22 @@
 ## Controller对Broker failure的处理过程
 
 1. Controller在Zookeeper的`/brokers/ids`节点上注册Watch。一旦有Broker宕机（本文用宕机代表任何让Kafka认为其Broker die的情景，包括但不限于机器断电，网络不可用，GC导致的Stop The World，进程crash等），其在Zookeeper对应的Znode会自动被删除，Zookeeper会fire Controller注册的Watch，Controller即可获取最新的幸存的Broker列表。
-2. Controller决定set_p，该集合包含了宕机的所有Broker上的所有Partition。
-3. 对set_p中的每一个Partition：
-   　　3.1 从`/brokers/topics/[topic]/partitions/[partition]/state`读取该Partition当前的ISR。
-   　　3.2 决定该Partition的新Leader。如果当前ISR中有至少一个Replica还幸存，则选择其中一个作为新Leader，新的ISR则包含当前ISR中所有幸存的Replica。否则选择该Partition中任意一个幸存的Replica作为新的Leader以及ISR（该场景下可能会有潜在的数据丢失）。如果该Partition的所有Replica都宕机了，则将新的Leader设置为-1。
-   　　3.3 将新的Leader，ISR和新的`leader_epoch`及`controller_epoch`写入`/brokers/topics/[topic]/partitions/[partition]/state`。注意，该操作只有Controller版本在3.1至3.3的过程中无变化时才会执行，否则跳转到3.1。
-4. 直接通过RPC向set_p相关的Broker发送LeaderAndISRRequest命令。Controller可以在一个RPC操作中发送多个命令从而提高效率。
-   　　Broker failover顺序图如下所示。
-   ![broker failover sequence diagram ](./pic/kafka_broker_failover.png)
 
-　　LeaderAndIsrRequest结构如下
+2. Controller决定set_p，该集合包含了宕机的所有Broker上的所有Partition。
+
+3. 对 set_p 中的每一个Partition：
+  - 从`/brokers/topics/[topic]/partitions/[partition]/state`读取该Partition当前的ISR。
+  - 决定该Partition的新Leader。如果当前ISR中有至少一个Replica还幸存，则选择其中一个作为新Leader，新的ISR则包含当前ISR中所有幸存的Replica。否则选择该Partition中任意一个幸存的Replica作为新的Leader以及ISR（该场景下可能会有潜在的数据丢失）。如果该Partition的所有Replica都宕机了，则将新的Leader设置为-1。
+  - 将新的Leader，ISR和新的`leader_epoch`及`controller_epoch`写入`/brokers/topics/[topic]/partitions/[partition]/state`。注意，该操作只有Controller版本在3.1至3.3的过程中无变化时才会执行，否则跳转到3.1。
+
+4. 直接通过RPC向set_p相关的Broker发送LeaderAndISRRequest命令。Controller可以在一个RPC操作中发送多个命令从而提高效率。
+Broker failover顺序图如下所示。
+![broker failover sequence diagram](./pic/kafka_broker_failover.png)
+
+LeaderAndIsrRequest结构如下
 ![LeaderAndIsrRequest](./pic/LeaderAndIsrRequest.png)
 
-　　LeaderAndIsrResponse结构如下
+LeaderAndIsrResponse结构如下
 ![LeaderAndIsrResponse](./pic/LeaderAndIsrResponse.png)
 
 ## 创建/删除Topic
@@ -27,11 +30,11 @@
 1. Controller在Zookeeper的`/brokers/topics`节点上注册Watch，一旦某个Topic被创建或删除，则Controller会通过Watch得到新创建/删除的Topic的Partition/Replica分配。
 2. 对于删除Topic操作，Topic工具会将该Topic名字存于`/admin/delete_topics`。若`delete.topic.enable`为true，则Controller注册在`/admin/delete_topics`上的Watch被fire，Controller通过回调向对应的Broker发送StopReplicaRequest；若为false则Controller不会在`/admin/delete_topics`上注册Watch，也就不会对该事件作出反应，此时Topic操作只被记录而不会被执行。
 3. 对于创建Topic操作，Controller从`/brokers/ids`读取当前所有可用的Broker列表，对于set_p中的每一个Partition：
-   　　3.1 从分配给该Partition的所有Replica（称为AR）中任选一个可用的Broker作为新的Leader，并将AR设置为新的ISR（因为该Topic是新创建的，所以AR中所有的Replica都没有数据，可认为它们都是同步的，也即都在ISR中，任意一个Replica都可作为Leader）
-   　　3.2 将新的Leader和ISR写入`/brokers/topics/[topic]/partitions/[partition]`
+  - 从分配给该Partition的所有Replica（称为AR）中任选一个可用的Broker作为新的Leader，并将AR设置为新的ISR（因为该Topic是新创建的，所以AR中所有的Replica都没有数据，可认为它们都是同步的，也即都在ISR中，任意一个Replica都可作为Leader）
+  - 将新的Leader和ISR写入`/brokers/topics/[topic]/partitions/[partition]`
 4. 直接通过RPC向相关的Broker发送LeaderAndISRRequest。
-   　　创建Topic顺序图如下所示。
-   ![create topic sequence diagram](./pic/kafka_create_topic.png)
+创建Topic顺序图如下所示。
+![create topic sequence diagram](./pic/kafka_create_topic.png)
 
 ## Broker响应请求流程
 
@@ -50,10 +53,10 @@
 
 1. 若请求中controllerEpoch小于当前最新的controllerEpoch，则直接返回ErrorMapping.StaleControllerEpochCode。
 2. 对于请求中partitionStateInfos中的每一个元素，即（(topic, partitionId), partitionStateInfo)：
-   　　2.1 若partitionStateInfo中的leader epoch大于当前ReplicManager中存储的(topic, partitionId)对应的partition的leader epoch，则：
-   　　　　2.1.1 若当前brokerid（或者说replica id）在partitionStateInfo中，则将该partition及partitionStateInfo存入一个名为partitionState的HashMap中
-   　　　　2.1.2否则说明该Broker不在该Partition分配的Replica list中，将该信息记录于log中
-   　　2.2否则将相应的Error code（ErrorMapping.StaleLeaderEpochCode）存入Response中
+  - 若partitionStateInfo中的leader epoch大于当前ReplicManager中存储的(topic, partitionId)对应的partition的leader epoch则：
+    - 若当前brokerid（或者说replica id）在partitionStateInfo中，则将该partition及partitionStateInfo存入一个名为partitionState的HashMap中
+    - 否则说明该Broker不在该Partition分配的Replica list中，将该信息记录于log中
+    - 否则将相应的Error code（ErrorMapping.StaleLeaderEpochCode）存入Response中
 3. 筛选出partitionState中Leader与当前Broker ID相等的所有记录存入partitionsTobeLeader中，其它记录存入partitionsToBeFollower中。
 4. 若partitionsTobeLeader不为空，则对其执行makeLeaders方。
 5. 若partitionsToBeFollower不为空，则对其执行makeFollowers方法。
@@ -212,7 +215,7 @@ index.interval.bytes
 ## Kafka Reassign Partitions Tool
 
 **用途**
-　　该工具的设计目标与Preferred Replica Leader Election Tool有些类似，都旨在促进Kafka集群的负载均衡。不同的是，Preferred Replica Leader Election只能在Partition的AR范围内调整其Leader，使Leader分布均匀，而该工具还可以调整Partition的AR。
+　　该工具的设计目标与Preferred Replica Leader Election Tool有些类似，都旨在促进Kafka集群的负载均衡。不同的是，Preferred Replica Leader Election只能在Partition的AR（replica）范围内调整其Leader，使Leader分布均匀，而该工具还可以调整Partition的AR。
 　　Follower需要从Leader Fetch数据以保持与Leader同步，所以仅仅保持Leader分布的平衡对整个集群的负载均衡来说是不够的。另外，生产环境下，随着负载的增大，可能需要给Kafka集群扩容。向Kafka集群中增加Broker非常简单方便，但是对于已有的Topic，并不会自动将其Partition迁移到新加入的Broker上，此时可用该工具达到此目的。某些场景下，实际负载可能远小于最初预期负载，此时可用该工具将分布在整个集群上的Partition重装分配到某些机器上，然后可以停止不需要的Broker从而实现节约资源的目的。
 　　需要说明的是，该工具不仅可以调整Partition的AR位置，还可调整其AR数量，即改变该Topic的replication factor。
 　　
