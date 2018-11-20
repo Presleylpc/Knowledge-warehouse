@@ -84,21 +84,6 @@ hadoop@pycdhnode2:/application/hadoop>kafka-producer-perf-test.sh --topic test6 
 
 
 
-
-
-
-## Kafka Metrics
-
-　　Kafka使用[Yammer Metrics](http://metrics.dropwizard.io/)来报告服务端和客户端的Metric信息。Yammer Metrics 3.1.0提供6种形式的Metrics收集——Meters，Gauges，Counters，Histograms，Timers，Health Checks。与此同时，Yammer Metrics将Metric的收集与报告（或者说发布）分离，可以根据需要自由组合。目前它支持的Reporter有Console Reporter，JMX Reporter，HTTP Reporter，CSV Reporter，SLF4J Reporter，Ganglia Reporter，Graphite Reporter。因此，Kafka也支持通过以上几种Reporter输出其Metrics信息。
-
-### 使用JConsole查看单服务器Metrics
-
-　　使用JConsole通过JMX，是在不安装其它工具（既然已经安装了Kafka，就肯定安装了Java，而JConsole是Java自带的工具）的情况下查看Kafka服务器Metrics的最简单最方便的方法之一。
-　　首先必须通过为环境变量JMX_PORT设置有效值来启用Kafka的JMX Reporter。如`export JMX_PORT=19797`。然后即可使用JConsole通过上面设置的端口来访问某一台Kafka服务器来查看其Metrics信息，如下图所示。
-
-[![JConsole Kafka JMX](http://www.jasongj.com/img/kafka/KafkaColumn5/jconsole.png)](http://www.jasongj.com/img/kafka/KafkaColumn5/jconsole.png)
-　　使用JConsole的一个好处是不用安装额外的工具，缺点很明显，数据展示不够直观，数据组织形式不友好，更重要的是不能同时监控整个集群的Metrics。在上图中，在kafka.cluster->Partition->UnderReplicated->topic4下，只有2和5两个节点，这并非因为topic4只有这两个Partition的数据是处于复制状态的。事实上，topic4在该Broker上只有这2个Partition，其它Partition在其它Broker上，所以通过该服务器的JMX Reporter只看到了这两个Partition。
-
 ### 通过Kafka Manager查看整个集群的Metrics
 
 　　[Kafka Manager](https://github.com/yahoo/kafka-manager)是Yahoo开源的Kafka管理工具。它支持如下功能
