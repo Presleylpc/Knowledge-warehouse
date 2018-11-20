@@ -272,15 +272,27 @@ sysctl -p
 
 vi `/etc/security/limits.conf` 添加以下内容：
 ```
+内容一：
 * soft nofile 65536
 * hard nofile 65536 
 * soft nproc 65536
 * hard nproc 65536
+或者添加内容二：
+*               soft     nofile          65536
+*               hard     nofile          131072
+*               soft     nproc           2048
+*               hard     nproc           4096
+*               hard     memlock         unlimited
+*               soft     memlock         unlimited
 ```
 vi `/etc/security/limits.d/20-nproc.conf` 添加以下内容：
 ```
+内容一:
 * soft nproc 65536
 root soft nproc unlimited
+
+或者内容二:
+* soft nproc 4096
 ```
 重启登录 `ulimit -a` 查看是否生效
 ```
