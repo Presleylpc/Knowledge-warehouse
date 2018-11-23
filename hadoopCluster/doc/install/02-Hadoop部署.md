@@ -394,15 +394,12 @@ ssh pycdhnode4 "mkdir -p /application/hadoop/data/tmp;mkdir -p /application/hado
 - 在 pycdhnode1 上执行：
 ```
 /application/hadoop/app/hadoop/sbin/start-dfs.sh
-```
-
 **注： start-dfs.sh 脚本原理是通过免密ssh登录到各节点启动相关进程，所以也会遇到ssh第一次连接需要确认的问题，请注意。**
-
-
 
 **启动HDFS时如果遇到警告：**
 `WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable` , 这个只是WARN，不会影响正常执行，如果需要根治，方法如下： 
-下载：hadoop-2.6.0+cdh5.14.2+2748-1.cdh5.14.2.p0.11.el7.x86_64.rpm，windows下使用7zip解压hadoop-2.6.0+cdh5.14.2+2748-1.cdh5.14.2.p0.11.el7.x86_64.rpm并取出\usr\lib\hadoop\lib\native下所有文件，上传到所有节点/application/hadoop/app/hadoop/lib/native下，然后在所有节点执行：
+- 下载：hadoop-2.6.0+cdh5.14.2+2748-1.cdh5.14.2.p0.11.el7.x86_64.rpm，windows下使用7zip解压hadoop-2.6.0+cdh5.14.2+2748-1.cdh5.14.2.p0.11.el7.x86_64.rpm
+- 取出\usr\lib\hadoop\lib\native下所有文件，上传到所有节点/application/hadoop/app/hadoop/lib/native下，然后在所有节点执行：
 ```
 cd /application/hadoop/app/hadoop/lib/native
 rm -f libhadoop.so
@@ -414,6 +411,7 @@ cp libnativetask.so.1.0.0 libnativetask.so
 cp libsnappy.so.1.1.4 libsnappy.so
 cp libsnappy.so.1.1.4 libsnappy.so.1
 ```
+[native 下载地址](https://pan.baidu.com/s/1-vvgZ8zBG5NqKGmKDlOp6Q)
 再次启动HDFS就不会再有此WARN了。
 
 - 通过web界面查看hdfs namenode启动情况
