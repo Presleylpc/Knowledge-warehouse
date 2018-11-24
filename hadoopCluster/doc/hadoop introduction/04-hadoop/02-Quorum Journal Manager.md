@@ -1,6 +1,9 @@
 ## HDFS 使用 Quorum Journal Manager 实现高可用
 
 [官网地址](http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html)
+
+[TOC]
+
 ### 背景
 Haddoop 2.0.0 之前的版本，NameNode 存在单点故障。一个Hadoop 集群只有一个NameNode，如果部署NameNode的服务器 或者NameNode服务出现故障，故障恢复前，Hadoop集群将无法访问。
 这在两个方面影响了HDFS集群的总体可用性：
@@ -10,17 +13,17 @@ Haddoop 2.0.0 之前的版本，NameNode 存在单点故障。一个Hadoop 集�
 HDFS HA 功能通过在 集群中运行两个冗余的NameNode来解决上述问题，冗余的NameNode 为Active/Passive模式。在服务故障的情况下快速转移到新的NameNode，或者 计划维护前人工进行故障转移。
 
 ### 架构
-在一个典型的 HA 架构中，NameNode被部署在两个独立的服务器上。在任意时间点，一个NameNode处于Active状态，另一个处于Standby状态。处于Active状态的NameNode负责集群中DataNode的运行，处于Standby状态的NameNode仅仅是一个从服务器，它收集集群中必要的信息，以便在必要的时候转换为Active状态。
+​	在一个典型的 HA 架构中，NameNode被部署在两个独立的服务器上。在任意时间点，一个NameNode处于Active状态，另一个处于Standby状态。处于Active状态的NameNode负责集群中DataNode的运行，处于Standby状态的NameNode仅仅是一个从服务器，它收集集群中必要的信息，以便在必要的时候转换为Active状态。
 
-为了保障Standby 与Active 状态同步，两个节点都与一组称为“JournalNodes”（JNs）的独立守护进程进行通信。Active节点进行namespace修改时，这个修改记录被长久的记录到大部分的JournalNodes中，Standby节点能够读取JournalNodes中的记录，并且持久的监视日志的变动，并将变动同步到自己的Namespace。在故障转移之前，Standby服务器会读取所有JournalNodes中的数据。这样可以保证namesapce的状态与故障转移前的Active完全相同。
+​	为了保障Standby 与Active 状态同步，两个节点都与一组称为“JournalNodes”（JNs）的独立守护进程进行通信。Active节点进行namespace修改时，这个修改记录被长久的记录到大部分的JournalNodes中，Standby节点能够读取JournalNodes中的记录，并且持久的监视日志的变动，并将变动同步到自己的Namespace。在故障转移之前，Standby服务器会读取所有JournalNodes中的数据。这样可以保证namesapce的状态与故障转移前的Active完全相同。
 
-为了提供快速故障切换，Standby节点还需要有关于集群中块的位置的最新信息。为了实现这一点，DataNode配置了两个NameNode的位置，并将块位置信息和心跳发送到两者。
+​	为了提供快速故障切换，Standby节点还需要有关于集群中块的位置的最新信息。为了实现这一点，DataNode配置了两个NameNode的位置，并将块位置信息和心跳发送到两者。
 
-正确的进行配置保证只有一个NameNode处于Active状态对于HA集群至关状态。否则namespace将会很快在两个Namenode出现不一致，导致数据丢失或者其他不正常的结果。为了保障不发生这种被称为‘脑裂’的情形，JournalNodes 仅仅只允许一个NameNode进行写入操作。故障转移期间，即将成为active的NameNode将接管写入JournalNodes的角色，这样将有效的阻止其他的NameNode成为Active状态，保证新的Active节点安全的进行故障转移。
+​	正确的进行配置保证只有一个NameNode处于Active状态对于HA集群至关状态。否则namespace将会很快在两个Namenode出现不一致，导致数据丢失或者其他不正常的结果。为了保障不发生这种被称为‘脑裂’的情形，JournalNodes 仅仅只允许一个NameNode进行写入操作。故障转移期间，即将成为active的NameNode将接管写入JournalNodes的角色，这样将有效的阻止其他的NameNode成为Active状态，保证新的Active节点安全的进行故障转移。
 ### 硬件资源
 
 为了部署一个HA集群，你应该进行一下的准备：
-- NameNode machines - 运行Active和Standby的NameNode节点， 以及和non-HA的集群使用相同的硬件配置。（官网原话，看不太懂。。。）
+- NameNode machines - 运行Active和Standby的NameNode节点， 以及和non-HA的集群使用相同的硬件配置。
 - JournalNode machines - JournalNode的进程是相当轻量的，所以JournalNode可以和其他Hadoop 程序部署在同一台服务器上，比如 NameNodes, JobTracker, 或者YARN ResourceManager。**注意：**JournalNode必须至少有三台，NameNode的edit log才能向JNs中写入。这样集群允许一个JournalNode崩溃。你可以运行多于3个的JournalNodes，但是为了真实的提高系统的容错能力，你应该改运行奇数个JNs。如果运行了N个JournalNode节点，系统可以允许的不正常的节点数为(n-1)/2。
 
 注意，在一个HA集群，Standby NameNode同时进行了namespace 的checkpoints。所以没有必要再运行Secondary NameNode， CheckpointNode, or BackupNode。事实上，如果再部署前面的节点将是错误的。这样将non—HA集群转换成HA集群，将可以原先部署Secondary NameNode的硬件设备重新利用起来。
@@ -153,12 +156,12 @@ shell 命令执行的环境可能需要包含现在Hadoop配置的变量，配�
 
 此外，还提供了以下指向要防护的目标节点的变量：
 
-| 变量名称 | 作用 | 
-| :-------- | :-------- | 
-| $target_host | 需要 限制的主机名 | 
-| $target_port | 需要被限制的主句的IPC端口 | 
-| $target_address | 结合以上两条 host:port | 
-| $target_nameserviceid | 被限制的NameNode的nameservice ID | 
+| 变量名称 | 作用 |
+| :-------- | :-------- |
+| $target_host | 需要 限制的主机名 |
+| $target_port | 需要被限制的主句的IPC端口 |
+| $target_address | 结合以上两条 host:port |
+| $target_nameserviceid | 被限制的NameNode的nameservice ID |
 | $target_namenodeid | 被限制的NameNode的 namenode ID |
 
 这些环境变量可以替换shell命令本身
@@ -212,12 +215,12 @@ Apache ZooKeeper是一种高可用的服务，用于维护少量的协调数据�
 
 有关自动故障转移设计的更多详细信息，请参阅Apache HDFS JIRA上HDFS-2185附带的设计文档。
 #### 部署ZooKeeper
-一个典型的部署中，Zookeeper一般运行3个或者5个节点。ZooKeeper本身只需要少量的资源，他可以搭配HDFS的其他服务一起部署比如NameNode和Standby 节点。很多操作人员选择 YARN ResourceManager 作为zookeeper的第三个节点部署服务器。
-将ZooKeeper 节点的数据 存储到与HDFS 元数据不同的磁盘，以获得最佳的性能和物理隔离。
+​	一个典型的部署中，Zookeeper一般运行3个或者5个节点。ZooKeeper本身只需要少量的资源，他可以搭配HDFS的其他服务一起部署比如NameNode和Standby 节点。很多操作人员选择 YARN ResourceManager 作为zookeeper的第三个节点部署服务器。
+​	将ZooKeeper 节点的数据 存储到与HDFS 元数据不同的磁盘，以获得最佳的性能和物理隔离。
 
-安装Zookeeper超出了本文档的范围。我们假设你已经部署了Zookeeper集群，在三个或者更多的节点上，同时使用了 ZK CLI 来检测过连接与配置。
+​	安装Zookeeper超出了本文档的范围。我们假设你已经部署了Zookeeper集群，在三个或者更多的节点上，同时使用了 ZK CLI 来检测过连接与配置。
 #### 开始之前
-开始配置自动故障转移之前，你应该关闭你的集群。目前不能在集群启动的状态下，将集群从人工故障转移配置成自动故障转移。
+​	开始配置自动故障转移之前，你应该关闭你的集群。目前不能在集群启动的状态下，将集群从人工故障转移配置成自动故障转移。
 #### 配置自动故障转移
 为了配置自动故障转移，需要添加两个新的参数到你的配置文件。在文件hdfs-site.xml中添加
 ``` xml
@@ -235,29 +238,29 @@ Apache ZooKeeper是一种高可用的服务，用于维护少量的协调数据�
 ```
 这列出了运行ZooKeeper服务的主机名与端口。
 
-与文档中前面介绍的参数一样，可以通过在名称服务的基础上配置nameservice ID后缀来配置这些设置。例如，在启用了联合的群集中，您可以通过设置dfs.ha.automatic-failover.enabled.my-nameservice-id为其中一个nameservices 显式启用自动故障转移。
+​	与文档中前面介绍的参数一样，可以通过在名称服务的基础上配置nameservice ID后缀来配置这些设置。例如，在启用了联合的群集中，您可以通过设置dfs.ha.automatic-failover.enabled.my-nameservice-id为其中一个nameservices 显式启用自动故障转移。
 
 还可以设置其他几个配置参数来控制自动故障转移的行为; 然而，对于大多数安装来说它们并不是必需的。
 
 #### 自动故障转移常见问题
 - **我以任何特定顺序启动ZKFC和NameNode守护进程是否很重要？**
 
-不需要。在任何给定节点上，您可以在其相应的NameNode之前或之后启动ZKFC。
+  不需要。在任何给定节点上，您可以在其相应的NameNode之前或之后启动ZKFC。
 
 - **我应该进行哪些额外的监测？**
 
-您应该在运行NameNode的每台主机上添加监视，以确保ZKFC保持运行。例如，在某些类型的ZooKeeper故障中，ZKFC可能意外退出，应该重新启动以确保系统已准备好进行自动故障转移。
+  您应该在运行NameNode的每台主机上添加监视，以确保ZKFC保持运行。例如，在某些类型的ZooKeeper故障中，ZKFC可能意外退出，应该重新启动以确保系统已准备好进行自动故障转移。
 
-此外，您应该监视ZooKeeper法定人数中的每个服务器。如果ZooKeeper崩溃，则自动故障转移将不起作用。
+  此外，您应该监视ZooKeeper法定人数中的每个服务器。如果ZooKeeper崩溃，则自动故障转移将不起作用。
 
 - **如果ZooKeeper出现故障会发生什么？**
 
-如果ZooKeeper群集崩溃，则不会触发自动故障转移。但是，HDFS将继续运行，没有任何影响。当ZooKeeper重新启动时，HDFS将不会重新连接。
+  如果ZooKeeper群集崩溃，则不会触发自动故障转移。但是，HDFS将继续运行，没有任何影响。当ZooKeeper重新启动时，HDFS将不会重新连接。
 
 - **我可以将我的NameNode中的一个指定为主/首选吗？**
 
-目前，这不支持。NameNode首先启动的任何一个都将变为活动状态。您可以选择以特定顺序启动群集，以便首选节点首先启动。
+  目前，这不支持。NameNode首先启动的任何一个都将变为活动状态。您可以选择以特定顺序启动群集，以便首选节点首先启动。
 
 - **如何在配置自动故障转移时启动手动故障转移？**
 
-即使配置了自动故障切换，也可以使用相同的hdfs haadmin命令启动手动故障切换。它将执行协调的故障转移
+  即使配置了自动故障切换，也可以使用相同的hdfs haadmin命令启动手动故障切换。它将执行协调的故障转移。
