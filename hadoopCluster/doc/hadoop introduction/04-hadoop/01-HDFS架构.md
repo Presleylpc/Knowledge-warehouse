@@ -91,7 +91,7 @@
 ​	启动时，NameNode进入一个名为Safemode的特殊状态。当NameNode处于Safemode状态时，不会发生数据块的复制。NameNode从DataNode接收Heartbeat和Blockreport消息。Blockreport包含DataNode托管的数据块列表。每个块都有指定的最小副本数。当使用NameNode检入该数据块的最小副本数时，会认为该块是安全复制的。在可配置百分比的安全复制数据块使用NameNode检入（再加上30秒）后，NameNode退出Safemode状态。然后，它确定仍然具有少于指定数量的副本的数据块列表（如果有）。然后，NameNode将这些块复制到其他DataNode。
 
 
-### 文件系统元数据的持久性保存
+### 文件系统元数据的持久保存
 ​	HDFS namespace由NameNode存储。NameNode使用名为`EditLog`的transaction log来持久记录文件系统元数据发生的所有更改。例如，在HDFS中创建一个新文件会时，NameNode会向EditLog中插入一条记录。同样，更改文件的复制因子，也会导致有新记录插入到EditLog中。NameNode使用其本地主机文件系统来保存EditLog。
 
 ​	整个文件系统namespace，包括块与文件的映射和文件系统的属性，存储在名为`FsImage`的文件中。FsImage也保存在NameNode的本地文件系统中。
@@ -118,7 +118,7 @@
 
 ​	每个DataNode定期向NameNode发送Heartbeat消息。网络分区可能导致DataNode的子集失去与NameNode的连接。NameNode通过缺少Heartbeat消息来检测此情况。NameNode将DataBodes标记为没有最近的Heartbeats，并且不会将任何新的IO请求转发给它们。注册到死DataNode的任何数据都不再可用于HDFS。DataNode死亡可能导致某些块的复制因子低于其指定值。NameNode不断跟踪需要复制的块，并在必要时启动复制。由于许多原因可能会出现重新复制的必要性：DataNode可能变得不可用，副本可能会损坏，DataNode上的硬盘可能会失败。
 
-​	标记DataNodes死机的超时是保守的长（默认情况下超过10分钟），以避免由DataNode状态抖动引起的复制风暴。用户可以设置较短的间隔以将DataNode标记为陈旧，并通过配置为性能敏感的工作负载避免过时的节点读取和/或写入。
+​	标记DataNodes死机的超时是保守的长（默认情况下超过10分钟），以避免由DataNode状态抖动引起的复制风暴。用户可以为性能要求较高的工作负载设置较短的间隔以将DataNode标记为`stale`，避免从` stale datanode`读取和/或写入。
 
 #### 群集再平衡
 
@@ -146,25 +146,25 @@
 
 #### 数据块
 
-HDFS旨在支持非常大的文件。与HDFS兼容的应用程序是处理大型数据集的应用程序。这些应用程序只编写一次数据，但是它们读取一次或多次，并要求在流速下满足这些读取。HDFS支持文件上的一次写入多次读取语义。HDFS使用的典型块大小为128 MB。因此，HDFS文件被切割成128 MB块，如果可能，每个块将驻留在不同的DataNode上。
+HDFS旨在支持非常大的文件。与HDFS兼容的应用程序是处理大型数据集的应用程序。这些应用程序只编写一次数据，但是它们读取一次或多次，并要求在流速下满足这些读取。HDFS支持文件上的一次写入多次读取。HDFS使用的典型块大小为128 MB。因此，HDFS文件被切割成128 MB块，如果可能，每个块将驻留在不同的DataNode上。
 
-#### 复制流水线
+### Replication Pipelining
 
-​	当客户端将数据写入复制因子为3的HDFS文件时，NameNode使用复制目标选择算法检索DataNode列表。此列表包含将承载该块副本的DataNode。然后客户端写入第一个DataNode。第一个DataNode开始分批接收数据，将每个部分写入其本地存储库，并将该部分传输到列表中的第二个DataNode。第二个DataNode又开始接收数据块的每个部分，将该部分写入其存储库，然后将该部分刷新到第三个DataNode。最后，第三个DataNode将数据写入其本地存储库。因此，DataNode可以从流水线中的前一个接收数据，同时将数据转发到流水线中的下一个。从而，
+​	当客户端将数据写入 replication 数量为3的HDFS文件时，NameNode使用复制目标选择算法检索DataNode列表。此列表包含将承载该块副本的DataNode。然后客户端写入第一个DataNode。第一个DataNode开始分批接收数据，将每个部分写入其本地存储库，并将该部分传输到列表中的第二个DataNode。第二个DataNode又开始接收数据块的每个部分，将该部分写入其存储库，然后将该部分刷新到第三个DataNode。最后，第三个DataNode将数据写入其本地存储库。因此，DataNode可以从流水线中的前一个接收数据，同时将数据转发到流水线中的下一个。
 
-### 无障碍
+## Accessibility
 
-​	可以通过多种不同方式从应用程序访问HDFS。本地，HDFS 为应用程序提供了[FileSystem Java API](http://hadoop.apache.org/docs/current/api/)。一[本Java API的C语言包装](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/LibHdfs.html)和[REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html)也是可用的。此外，还有HTTP浏览器，也可用于浏览HDFS实例的文件。通过使用[NFS网关](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)，HDFS可以作为客户端本地文件系统的一部分进行安装。
+​	可以通过多种不同方式从应用程序访问HDFS。HDFS 为应用程序提供了[FileSystem Java API](http://hadoop.apache.org/docs/current/api/)。[C language wrapper for this Java AP](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/LibHdfs.html)和[REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html)也是可用的。此外，还有HTTP浏览器，也可用于浏览HDFS实例的文件。通过使用[NFS gateway](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsNfsGateway.html)，HDFS可以作为客户端本地文件系统的一部分进行安装。
 
 #### FS Shell
 
 ​	HDFS允许以文件和目录的形式组织用户数据。它提供了一个名为[FS shell](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html)的命令行界面，允许用户与HDFS中的数据进行交互。此命令集的语法类似于用户已熟悉的其他shell（例如bash，csh）。以下是一些示例操作/命令对：
 
-| 行动                                       | 命令                                       |
-| ------------------------------------------ | ------------------------------------------ |
-| 创建一个名为`/ foodir`的目录``             | `bin / hadoop dfs -mkdir / foodir`         |
-| 删除名为`/ foodir`的目录``                 | `bin / hadoop fs -rm -R / foodir`          |
-| 查看名为`/foodir/myfile.txt`的文件的内容`` | `bin / hadoop dfs -cat /foodir/myfile.txt` |
+| Action                                                 | Command                                  |
+| ------------------------------------------------------ | ---------------------------------------- |
+| Create a directory named `/foodir`                     | `bin/hadoop dfs -mkdir /foodir`          |
+| Remove a directory named `/foodir`                     | `bin/hadoop fs -rm -R /foodir`           |
+| View the contents of a file named `/foodir/myfile.txt` | `bin/hadoop dfs -cat /foodir/myfile.txt` |
 
 FS shell适用于需要脚本语言与存储数据交互的应用程序。
 
@@ -172,11 +172,11 @@ FS shell适用于需要脚本语言与存储数据交互的应用程序。
 
 DFSAdmin命令集用于管理HDFS集群。这些命令仅由HDFS管理员使用。以下是一些示例操作/命令对：
 
-| 行动                        | 命令                                |
-| --------------------------- | ----------------------------------- |
-| 将群集放在Safemode中        | `bin / hdfs dfsadmin -safemode输入` |
-| 生成DataNode列表            | `bin / hdfs dfsadmin -report`       |
-| 重新发布或退役DataNode（s） | `bin / hdfs dfsadmin -refreshNodes` |
+| Action                                   | Command                             |
+| ---------------------------------------- | ----------------------------------- |
+| Put the cluster in Safemode              | `bin/hdfs dfsadmin -safemode enter` |
+| Generate a list of DataNodes             | `bin/hdfs dfsadmin -report`         |
+| Recommission or decommission DataNode(s) | `bin/hdfs dfsadmin -refreshNodes`   |
 
 #### 浏览器界面
 
@@ -188,7 +188,7 @@ DFSAdmin命令集用于管理HDFS集群。这些命令仅由HDFS管理员使用�
 
 ​	如果启用了垃圾箱配置，则[FS Shell](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html#rm)删除的文件不会立即从HDFS中删除。相反，HDFS将其移动到垃圾目录（每个用户在`/user/<username>/.Trash`下都有自己的垃圾目录）。只要文件保留在垃圾箱中，文件就可以快速恢复。
 
-​	最近删除的文件被移动到当前的垃圾箱目录（`/user/<username>/.Trash/Current`），并且在可配置的时间间隔内，HDFS创建了检查点（在`/ user / <username> / .Trash / <date>下`）对于当前垃圾目录中的文件，并在过期时删除旧检查点。有关垃圾箱的检查点，请参阅[FS shell的expunge命令](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html#expunge)。
+​	最近删除的文件被移动到当前的垃圾箱目录（`/user/<username>/.Trash/Current`），并且在可配置的时间间隔内，HDFS创建了检查点（在`/user/<username>/.Trash/<date>下`）对于当前垃圾目录中的文件，并在过期时删除旧检查点。有关垃圾箱的检查点，请参阅[FS shell的expunge命令](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html#expunge)。
 
 ​	它的生命周期在垃圾箱中到期后，NameNode将从HDFS命名空间中删除该文件。删除文件会导致释放与文件关联的块。请注意，在用户删除文件的时间与HDFS中相应增加的可用空间之间可能存在明显的时间延迟。
 
@@ -222,7 +222,7 @@ Deleted delete/test2
 ```bash
 $ hadoop fs -ls .Trash/Current/user/hadoop/delete/
 Found 1 items\
-drwxr-xr-x   - hadoop hadoop          0 2015-05-08 12:39 .Trash/Current/user/hadoop/delete/test1
+drwxr-xr-x - hadoop hadoop  0 2015-05-08 12:39 .Trash/Current/user/hadoop/delete/test1
 ```
 
 因此文件test1进入垃圾箱并永久删除文件test2。
