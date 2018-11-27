@@ -1,5 +1,48 @@
 ## COBBLER无人值守安装
+
+[原文地址 kickstart](https://blog.oldboyedu.com/autoinstall-kickstart/)
+
+[原文地址 cobbler](https://blog.oldboyedu.com/autoinstall-cobbler/)
+
 [TOC]
+
+## 0. 简介
+
+### 0.1 什么是PXE
+
+- PXE，全名Pre-boot Execution Environment，预启动执行环境；
+- 通过网络接口启动计算机，不依赖本地存储设备（如硬盘）或本地已安装的操作系统；
+- 由Intel和Systemsoft公司于1999年9月20日公布的技术；
+- Client/Server的工作模式；
+- PXE客户端会调用网际协议(IP)、用户数据报协议(UDP)、动态主机设定协议(DHCP)、小型文件传输协议(TFTP)等网络协议；
+- PXE客户端(client)这个术语是指机器在PXE启动过程中的角色。一个PXE客户端可以是一台服务器、笔记本电脑或者其他装有PXE启动代码的机器（我们电脑的网卡）。
+
+### 0.2 PXE的工作过程
+
+![img](pic/wpid-a5704a39c5db7c1471a18db54f2a9198_30b7c437-be0d-4523-9444-e39fd94e2c50.jpg)
+
+![img](pic/wpid-a5704a39c5db7c1471a18db54f2a9198_bb6ace67-f0c4-4990-b07c-342678847156.jpg)
+
+1. PXE Client向DHCP发送请求 
+   PXE Client从自己的PXE网卡启动，通过PXE BootROM(自启动芯片)会以UDP(简单用户数据报协议)发送一个广播请求，向本网络中的DHCP服务器索取IP。
+
+2. DHCP服务器提供信息 
+   DHCP服务器收到客户端的请求，验证是否来至合法的PXE Client的请求，验证通过它将给客户端一个“提供”响应，这个“提供”响应中包含了为客户端分配的IP地址、pxelinux启动程序(TFTP)位置，以及配置文件所在位置。
+
+3. PXE客户端请求下载启动文件 
+   客户端收到服务器的“回应”后，会回应一个帧，以请求传送启动所需文件。这些启动文件包括：pxelinux.0、pxelinux.cfg/default、vmlinuz、initrd.img等文件。
+
+4. Boot Server响应客户端请求并传送文件 
+   当服务器收到客户端的请求后，他们之间之后将有更多的信息在客户端与服务器之间作应答, 用以决定启动参数。BootROM由TFTP通讯协议从Boot Server下载启动安装程序所必须的文件(pxelinux.0、pxelinux.cfg/default)。default文件下载完成后，会根据该文件中定义的引导顺序，启动Linux安装程序的引导内核。
+
+5. 请求下载自动应答文件 
+   客户端通过pxelinux.cfg/default文件成功的引导Linux安装内核后，安装程序首先必须确定你通过什么安装介质来安装linux，如果是通过网络安装(NFS, FTP, HTTP)，则会在这个时候初始化网络，并定位安装源位置。接着会读取default文件中指定的自动应答文件ks.cfg所在位置，根据该位置请求下载该文件。
+
+   > 这里有个问题，在第2步和第5步初始化2次网络了，这是由于PXE获取的是安装用的内核以及安装程序等，而安装程序要获取的是安装系统所需的二进制包以及配置文件。因此PXE模块和安装程序是相对独立的，PXE的网络配置并不能传递给安装程序，从而进行两次获取IP地址过程，但IP地址在DHCP的租期内是一样的。
+
+6. 客户端安装操作系统 
+   将ks.cfg文件下载回来后，通过该文件找到OS Server，并按照该文件的配置请求下载安装过程需要的软件包。 
+   OS Server和客户端建立连接后，将开始传输软件包，客户端将开始安装操作系统。安装完成后，将提示重新引导计算机。
 
 ## 1. Cobbler介绍
 
@@ -108,16 +151,18 @@ cobbler check  # 检查Cobbler的配置，如果看不到下面的结果，再�
 
 看着上面的结果，一个一个解决。
 第1、2、6个问题，顺便修改其他功能
+
 ```
 cp /etc/cobbler/settings{,.ori}  # 备份# server，Cobbler服务器的IP。
 
-sed -i 's/server: 127.0.0.1/server: 10.0.0.7/' /etc/cobbler/settings
+sed -i 's/server: 127.0.0.1/server: 192.168.0.15/' /etc/cobbler/settings
 ```
 next_server，如果用Cobbler管理DHCP，修改本项，作用不解释，看kickstart。
 ```
-sed -i 's/next_server: 127.0.0.1/next_server: 10.0.0.7/' /etc/cobbler/settings
+sed -i 's/next_server: 127.0.0.1/next_server: 192.668.0.15/' /etc/cobbler/settings
 ```
-用Cobbler管理DHCP
+**重要：用Cobbler管理DHCP**
+
 ```
 sed -i 's/manage_dhcp: 0/manage_dhcp: 1/' /etc/cobbler/settings
 ```
@@ -302,30 +347,42 @@ cobbler profile  查看配置信息
 ```
 # mount /dev/cdrom /mnt/  # 挂载CentOS7的系统镜像。
 # 导入系统镜像
-# cobbler import --path=/mnt/ --name=CentOS-7.1-x86_64 --arch=x86_64
+# cobbler import --path=/mnt/ --name=CentOS-7.5-x86_64 --arch=x86_64
 ```
 参数:
  --path 镜像路径
  --name 为安装源定义一个名字
  --arch 指定安装源是32位、64位、ia64, 目前支持的选项有: x86│x86_64│ia64
-**注意：**安装源的唯一标示就是根据name参数来定义，本例导入成功后，安装源的唯一标示就是：CentOS-7.1-x86_64，如果重复，系统会提示导入失败。
+**注意：**安装源的唯一标示就是根据name参数来定义，本例导入成功后，安装源的唯一标示就是：CentOS-7.5-x86_64，如果重复，系统会提示导入失败。
 ```
 # cobbler distro list  # 查看镜像列表
-   CentOS-7.1-x86_64
+   CentOS-7.5-x86_64
 ```
 
-镜像存放目录，cobbler会将镜像中的所有安装文件拷贝到本地一份，放在/var/www/cobbler/ks_mirror下的CentOS-7.1-x86_64目录下。因此/var/www/cobbler目录必须具有足够容纳安装文件的空间。
-```
+镜像存放目录，cobbler会将镜像中的所有安装文件拷贝到本地一份，放在/var/www/cobbler/ks_mirror下的CentOS-7.5-x86_64目录下。因此/var/www/cobbler目录必须具有足够容纳安装文件的空间。
+```bash
 # cd /var/www/cobbler/ks_mirror/
 # ls
-CentOS-7.1-x86_64  config
-# ls CentOS-7.1-x86_64/
+CentOS-7.5-x86_64  config
+# ls CentOS-7.5-x86_64/
 CentOS_BuildTag  GPL       LiveOS    RPM-GPG-KEY-CentOS-7
 EFI              images    Packages  RPM-GPG-KEY-CentOS-Testing-7
 EULA             isolinux  repodata  TRANS.TBL
 ```
 
+检查软连接
+
+```bash
+# cd /var/www/cobbler/links/
+# ll
+总用量 0
+lrwxrwxrwx 1 root root 44 11月 27 10:14 CentOS-7.5-x86_64 -> /var/www/cobbler/ks_mirror/CentOS-7.5-x86_64
+```
+
+
+
 ### 3.3 指定ks.cfg文件及调整内核参数
+
 - 上传cfg文件
 ```shell
 # cd /var/lib/cobbler/kickstarts/
@@ -336,17 +393,17 @@ esxi5-ks.cfg  pxerescue.ks      sample_esx4.ks       sample.ks
 # rz  # 上传准备好的ks文件
 rz waiting to receive.
 Starting zmodem transfer.  Press Ctrl+C to cancel.
-Transferring Cobbler-CentOS-7.1-x86_64.cfg...
+Transferring Cobbler-CentOS-7.5-x86_64.cfg...
   100%       1 KB       1 KB/sec    00:00:01       0 Errors
-# mv Cobbler-CentOS-7.1-x86_64.cfg CentOS-7.1-x86_64.cfg
+# mv Cobbler-CentOS-7.5-x86_64.cfg CentOS-7.5-x86_64.cfg
 ```
 在第一次导入系统镜像后，Cobbler会给镜像指定一个默认的kickstart自动安装文件在/var/lib/cobbler/kickstarts下的sample_end.ks。
 ```shell
 # cobbler list
 distros:
-   CentOS-7.1-x86_64
+   CentOS-7.5-x86_64
 profiles:
-   CentOS-7.1-x86_64
+   CentOS-7.5-x86_64
 systems:
 repos:
 images:
@@ -357,18 +414,18 @@ files:
 
 - 查看安装镜像文件信息
 ``` shell
-[root@linux-node1 ~]# cobbler distro report --name=CentOS-7.1-x86_64
-Name                           : CentOS-7.1-x86_64
+[root@linux-node1 ~]# cobbler distro report --name=CentOS-7.5-x86_64
+Name                           : CentOS-7.5-x86_64
 Architecture                   : x86_64
 TFTP Boot Files                : {}
 Breed                          : redhat
 Comment                        : 
 Fetchable Files                : {}
-Initrd                         : /var/www/cobbler/ks_mirror/CentOS-7.1-x86_64/images/pxeboot/initrd.img
-Kernel                         : /var/www/cobbler/ks_mirror/CentOS-7.1-x86_64/images/pxeboot/vmlinuz
+Initrd                         : /var/www/cobbler/ks_mirror/CentOS-7.5-x86_64/images/pxeboot/initrd.img
+Kernel                         : /var/www/cobbler/ks_mirror/CentOS-7.5-x86_64/images/pxeboot/vmlinuz
 Kernel Options                 : {}
 Kernel Options (Post Install)  : {}
-Kickstart Metadata             : {'tree': 'http://@@http_server@@/cblr/links/CentOS-7.1-x86_64'}
+Kickstart Metadata             : {'tree': 'http://@@http_server@@/cblr/links/CentOS-7.5-x86_64'}
 Management Classes             : []
 OS Version                     : rhel7
 Owners                         : ['admin']
@@ -384,12 +441,12 @@ Template Files                 : {}
 
 - 查看指定的profile设置
 ```shell
-[root@linux-node1 ~]# cobbler profile report --name=CentOS-7.1-x86_64
-Name                           : CentOS-7.1-x86_64
+[root@linux-node1 ~]# cobbler profile report --name=CentOS-7.5-x86_64
+Name                           : CentOS-7.5-x86_64
 TFTP Boot Files                : {}
 Comment                        : 
 DHCP Tag                       : default
-Distribution                   : CentOS-7.1-x86_64
+Distribution                   : CentOS-7.5-x86_64
 Enable gPXE?                   : 0
 Enable PXE Menu?               : 1
 Fetchable Files                : {}
@@ -420,26 +477,26 @@ Virt Type                      : kvm
 ```
 
 - 编辑profile，修改关联的ks文件
-```
-# cobbler profile edit --name=CentOS-7.1-x86_64 --kickstart=/var/lib/cobbler/kickstarts/CentOS-7.1-x86_64.cfg
+```bash
+cobbler profile edit --name=CentOS-7.5-x86_64 --kickstart=/var/lib/cobbler/kickstarts/CentOS-7.5-x86_64.cfg
 ```
 
 - 修改安装系统的内核参数
 在CentOS7系统有一个地方变了，就是网卡名变成eno16777736这种形式，但是为了运维标准化，我们需要将它变成我们常用的eth0，因此使用下面的参数。但要注意是CentOS7才需要下面的步骤，CentOS6不需要。
 ```shell
-# cobbler profile edit --name=CentOS-7.1-x86_64 --kopts='net.ifnames=0 biosdevname=0'
-# cobbler profile report CentOS-7.1-x86_64
-Name                           : CentOS-7.1-x86_64
+# cobbler profile edit --name=CentOS-7.5-x86_64 --kopts='net.ifnames=0 biosdevname=0'
+# cobbler profile report CentOS-7.5-x86_64
+Name                           : CentOS-7.5-x86_64
 TFTP Boot Files                : {}
 Comment                        : 
 DHCP Tag                       : default
-Distribution                   : CentOS-7.1-x86_64
+Distribution                   : CentOS-7.5-x86_64
 Enable gPXE?                   : 0
 Enable PXE Menu?               : 1
 Fetchable Files                : {}
 Kernel Options                 : {'biosdevname': '0', 'net.ifnames': '0'}
 Kernel Options (Post Install)  : {}
-Kickstart                      : /var/lib/cobbler/kickstarts/CentOS-7.1-x86_64.cfg
+Kickstart                      : /var/lib/cobbler/kickstarts/CentOS-7.5-x86_64.cfg
 Kickstart Metadata             : {}
 Management Classes             : []
 Management Parameters          : <<inherit>>
@@ -495,8 +552,9 @@ MENU TITLE Cobbler | https://github.com/huruizhi
 > 文件大部分参数含义见kickstart文章，此处只讲一些不同的地方。同时可以参考模板文件。
 
 cat CentOS-7-x86_64.cfg 
+
 ```bash
-#obbler for Kickstart Configurator for CentOS 7.1 by yao zhang
+#obbler for Kickstart Configurator for CentOS 7.5 by huruizhi
 install
 url --url=$tree  
 text
@@ -508,11 +566,12 @@ bootloader --location=mbr
 $SNIPPET('network_config')
 timezone --utc Asia/Shanghai
 authconfig --enableshadow --passalgo=sha512
-rootpw  qwe123
+rootpw  --iscrypted  $6$GbCmhHaD4X4haEau$FDbNi/8CTLnRHhaQ4hfp4tm9h1L/AsgS7FdfAx5pLZb3aMTcxCel/Z4./yYh94CPFF.jQgT8j.vQcQLst.XzU1
 clearpart --all --initlabel
 part /boot --fstype xfs --size 500  
 part swap --size 500
-part / --fstype xfs --size 18000  
+part / --fstype xfs --size 20000 --asprimary
+part /application --fstype xfs  --grow --asprimary
 firstboot --disable
 selinux --disabled
 firewall --disabled
@@ -548,8 +607,52 @@ screen
 
 %post
 systemctl disable postfix.service
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+chown root.root /root/.ssh
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw==" >> /root/.ssh/authorized_keys
+chmod 644 /root/.ssh/authorized_keys
+chown root.root /root/.ssh/authorized_keys
+
 %end
 ```
+
+### 4.1 rootpw 秘钥生成方式
+
+```bash
+# grub-crypt 
+Password:  		  # 输入密码 qwe123
+Retype password:  # 输入密码 qwe123
+$6$e1lN56QP4/EDZDoF$Km7jBpZo16ZBEuevOHy0RqputxWTDX7SFu7ppl28dPeZ7wJOnGTsjXsCzG2de41wcPmMEltBY0mT.GXafg5pA/
+```
+
+### 4.2 免秘钥登录
+
+```bash
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+chown root.root /root/.ssh
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw==" >> /root/.ssh/authorized_keys
+chmod 644 /root/.ssh/authorized_keys
+chown root.root /root/.ssh/authorized_keys
+```
+
+其中 echo "<私钥>"  >> /root/.ssh/authorized_keys 的私钥生成方式为
+
+1. 在一台linux服务器上将root 的密码修改为与即将远程安装的服务器的密码一致，本例中为 qwe123
+
+2. 使用ssh-keygen生成秘钥，过程一路回车。
+
+3. 查看一下私钥
+
+4. ```bash
+   # cat ~/.ssh/id_rsa.pub 
+   ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw== root@cobbler
+   ```
+
+   将<用户名>@<主机名>部分去掉 其他部分即为秘钥，本例中去掉 root@cobbler
+
+
 
 ## 5. 定制化安装
 
@@ -559,12 +662,26 @@ systemctl disable postfix.service
 
 物理服务器的MAC地址在服务器上的标签上写了。
 
+- 添加`cobbler system `
+
+```bash
+cobbler system add --name=cdhserver1 --mac=00:0C:29:98:48:64 --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.20 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver1 --name-servers="192.168.0.156 114.114.114.114"
+
+cobbler system add --name=cdhserver2 --mac=00:50:56:26:39:9E --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.21 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver2 --name-servers="192.168.0.156 114.114.114.114"
+
+
+cobbler system add --name=cdhserver3 --mac=00:50:56:33:2C:EC --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.22 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver3 --name-servers="192.168.0.156 114.114.114.114"
+
 ```
-cobbler system add --name=oldboy --mac=00:0C:29:7F:2F:A1 --profile=CentOS-7.1-x86_64 --ip-address=10.0.0.111 --subnet=255.255.255.0 --gateway=10.0.0.2 --interface=eth0 --static=1 --hostname=oldboy.example.com --name-servers="114.114.114.114 8.8.8.8"
-# --name 自定义，但不能重复
-# 查看定义的列表
+--name 自定义，但不能重复 镜像唯一标识
+
+- 查看定义的列表
+
+```bash
 [root@linux-node1 ~]# cobbler system list
-   oldboy
+   cdhserver1
+   cdhserver2
+   cdhserver3
 [root@linux-node1 ~]# cobbler sync
 ```
 
@@ -574,7 +691,7 @@ cobbler system add --name=oldboy --mac=00:0C:29:7F:2F:A1 --profile=CentOS-7.1-x8
 
 已经安装cobbler-web软件。
 
-访问网址：`http://10.0.0.7/cobbler_web`和`https://10.0.0.7/cobbler_web`
+访问网址：`http://192.168.0.15/cobbler_web`和`https://192.168.0.15/cobbler_web`
 
 默认用户名：cobbler 
 默认密码 ：cobbler
@@ -589,6 +706,7 @@ cobbler:Cobbler:a2d6bae81669d707b72c0bd9806e01f3
 
 设置Cobbler web用户登陆密码
 在Cobbler组添加cobbler用户，提示输入2遍密码确认
+
 ```bash
 htdigest /etc/cobbler/users.digest "Cobbler" cobbler
 Changing password for user cobbler in realm Cobbler
@@ -607,3 +725,20 @@ Starting cobbler daemon:                                   [确定]
 以后就需要用123456这个密码登录了。
 
 接下来的操作就是点点鼠标了。
+
+## 7. 错误
+
+- httpd启动报错
+
+```bash
+httpd: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
+```
+
+修改 vim /etc/httpd/conf/httpd.conf
+
+在最后一行添加
+
+```bash
+ServerName 0.0.0.0:80
+```
+
