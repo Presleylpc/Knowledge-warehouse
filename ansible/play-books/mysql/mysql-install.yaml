@@ -1,4 +1,0 @@
-# 部署数据库
-- hosts: mysql
-  roles:
-  - mysql-install

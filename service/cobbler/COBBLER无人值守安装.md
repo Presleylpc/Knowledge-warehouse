@@ -136,7 +136,8 @@ rpm -ql cobbler  # 查看安装的文件，下面列出部分。
 
 - 配置cobbler
 ```
-/etc/init.d/cobblerd startStarting cobbler daemon:      [确定]
+/etc/init.d/cobblerd start
+Starting cobbler daemon:      [确定]
 cobbler check  # 检查Cobbler的配置，如果看不到下面的结果，再次执行
 
 /etc/init.d/cobblerd restartThe following are potential configuration items that you may want to fix:
@@ -207,12 +208,13 @@ Restart cobblerd and then run 'cobbler sync' to apply changes.
 修改cobbler的dhcp模版，不要直接修改dhcp本身的配置文件，因为cobbler会覆盖。
 vim /etc/cobbler/dhcp.template    
 仅列出修改过的字段
+
 ```
- subnet 10.0.0.0 netmask 255.255.255.0 {
-	option routers             10.0.0.2;
-    option domain-name-servers 10.0.0.2;
+ subnet 192.168.0.0 netmask 255.255.255.0 {
+	option routers             192.168.0.1;
+    option domain-name-servers 192.168.0.156;
     option subnet-mask         255.255.255.0;
-    range dynamic-bootp        10.0.0.100 10.0.0.200;
+    range dynamic-bootp        192.168.0.16 192.168.0.25;
     ……
 ```
 
@@ -354,6 +356,7 @@ cobbler profile  查看配置信息
  --name 为安装源定义一个名字
  --arch 指定安装源是32位、64位、ia64, 目前支持的选项有: x86│x86_64│ia64
 **注意：**安装源的唯一标示就是根据name参数来定义，本例导入成功后，安装源的唯一标示就是：CentOS-7.5-x86_64，如果重复，系统会提示导入失败。
+
 ```
 # cobbler distro list  # 查看镜像列表
    CentOS-7.5-x86_64
@@ -637,13 +640,13 @@ chmod 644 /root/.ssh/authorized_keys
 chown root.root /root/.ssh/authorized_keys
 ```
 
-其中 echo "<私钥>"  >> /root/.ssh/authorized_keys 的私钥生成方式为
+其中 echo "<公钥>"  >> /root/.ssh/authorized_keys 的公钥生成方式为
 
 1. 在一台linux服务器上将root 的密码修改为与即将远程安装的服务器的密码一致，本例中为 qwe123
 
 2. 使用ssh-keygen生成秘钥，过程一路回车。
 
-3. 查看一下私钥
+3. 查看一下公钥
 
 4. ```bash
    # cat ~/.ssh/id_rsa.pub 
@@ -665,12 +668,13 @@ chown root.root /root/.ssh/authorized_keys
 - 添加`cobbler system `
 
 ```bash
-cobbler system add --name=cdhserver1 --mac=00:0C:29:98:48:64 --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.20 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver1 --name-servers="192.168.0.156 114.114.114.114"
+# cobbler system add --name=cdhserver1 --mac=00:0C:29:98:48:64 --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.20 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver1 --name-servers="192.168.0.156 114.114.114.114"
 
-cobbler system add --name=cdhserver2 --mac=00:50:56:26:39:9E --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.21 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver2 --name-servers="192.168.0.156 114.114.114.114"
+# cobbler system add --name=cdhserver2 --mac=00:50:56:26:39:9E --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.21 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver2 --name-servers="192.168.0.156 114.114.114.114"
 
+# cobbler system add --name=cdhserver3 --mac=00:50:56:33:2C:EC --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.22 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver3 --name-servers="192.168.0.156 114.114.114.114"
 
-cobbler system add --name=cdhserver3 --mac=00:50:56:33:2C:EC --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.22 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver3 --name-servers="192.168.0.156 114.114.114.114"
+# cobbler system add --name=cdhserver4 --mac=00:0C:29:B5:61:AD --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.23 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver4 --name-servers="192.168.0.156 114.114.114.114"
 
 ```
 --name 自定义，但不能重复 镜像唯一标识
@@ -682,6 +686,7 @@ cobbler system add --name=cdhserver3 --mac=00:50:56:33:2C:EC --profile=CentOS-7.
    cdhserver1
    cdhserver2
    cdhserver3
+   cdhserver4
 [root@linux-node1 ~]# cobbler sync
 ```
 
@@ -715,8 +720,8 @@ Re-type new password:123456
 
 # cobbler sync
 # /etc/init.d/httpd restart
-停止 httpd：                                               [确定]
-正在启动 httpd：                                            [确定]
+停止 httpd：                                                [确定]
+正在启动 httpd：                                             [确定]
 # /etc/init.d/cobblerd restart
 Stopping cobbler daemon:                                   [确定]
 Starting cobbler daemon:                                   [确定]
