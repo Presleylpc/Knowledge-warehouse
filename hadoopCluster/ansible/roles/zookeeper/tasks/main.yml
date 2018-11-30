@@ -43,4 +43,4 @@
   when: p.stat.isreg is not defined
 
 - name: 启动zookeeper
-  shell: /application/hadoop/app/zookeeper/bin/zkServer.sh start
+  shell: source ~/.bash_profile && /application/hadoop/app/zookeeper/bin/zkServer.sh start

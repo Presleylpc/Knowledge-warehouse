@@ -29,3 +29,7 @@
 - name: 加载环境变量
   shell: source ~/.bash_profile
   when: p.stat.isreg is not defined
+
+- name: java测试
+  shell: source ~/.bash_profile &&  java -version
+
