@@ -641,22 +641,28 @@ hadoop jar /application/hadoop/app/hadoop/share/hadoop/mapreduce/hadoop-mapreduc
 
 ## 集群启动/停止顺序
 
-### 启动 zookeeper
+### 启动
+
+#### 启动 zookeeper
+
 启动pycdhnode2-3节点 zookeeper
 ```
 /application/hadoop/app/zookeeper/bin/zkServer.sh start
 ```
-### 在每个节点 启动 JobHistoryServer
+#### 在每个节点 启动 JobHistoryServer
+
 ```
 /application/hadoop/app/hadoop/sbin/mr-jobhistory-daemon.sh start historyserver
 ```
 
 #### 启动 HDFS
+
 ```
 /application/hadoop/app/hadoop/sbin/start-dfs.sh
 ```
 
 #### 启动 YARN
+
 ```
 # 首先pycdhnode1执行：
 

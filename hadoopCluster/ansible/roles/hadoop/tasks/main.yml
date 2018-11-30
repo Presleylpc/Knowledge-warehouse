@@ -1,0 +1,20 @@
+- name: 检查hadoop是否安装
+  stat: path={{ base_dir }}/hadoop
+  register: p
+  
+- block:
+  - name: 分发hadoop
+    unarchive: src={{ package_dir }}/hadoop-2.6.0-cdh5.14.2.tar.gz  dest={{ base_dir }}
+
+  - name: 创建软连接
+    file: state=link src={{ base_dir }}/hadoop-2.6.0-cdh5.14.2  dest={{ base_dir }}/hadoop
+	
+  - name: 配置环境变量
+    shell: echo '{{ item }}'>> ~/.bash_profile 
+    with_items:
+    - HADOOP_HOME=/application/hadoop/app/hadoop
+    - PATH=$HADOOP_HOME/bin:$PATH
+    - export HADOOP_HOME PATH
+
+   - name: 分发配置文件
+    template: src=zoo.cfg.j2 dest={{ base_dir }}/zookeeper/conf/zoo.cfg
