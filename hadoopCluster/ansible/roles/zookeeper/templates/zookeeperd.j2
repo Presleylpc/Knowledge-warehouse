@@ -1,0 +1,13 @@
+[Unit]
+Description=ZooKeeperd
+After=network.target
+
+[Service]
+Type=forking
+ExecStart={{ base_dir }}/zookeeper/bin/zkServer.sh start
+ExecReload=
+ExecStop={{ base_dir }}/zookeeper/bin/zkServer.sh stop
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
