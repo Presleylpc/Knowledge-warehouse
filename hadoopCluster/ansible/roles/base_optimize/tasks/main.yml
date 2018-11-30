@@ -1,0 +1,17 @@
+- block:
+  - name: 检查是否优化
+    stat: path=/root/optimize.sh
+    register: p 
+
+  - name: 分发优化脚本
+    copy: src={{ file_dir }}/optimize/optimize.sh dest=/root/optimize.sh mode=0755
+    when: p.stat.isreg is not defined
+
+  - name: 执行脚本
+    shell: /bin/bash  /root/optimize.sh
+    when: p.stat.isreg is not defined
+
+  - name: 配置hosts 文件 
+    copy: src=/etc/hosts dest=/etc/hosts
+  become: yes
+  become_method: su

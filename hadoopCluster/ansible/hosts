@@ -1,0 +1,35 @@
+[cdh]
+cdhserver1  ansible_ssh_user=hadoop ansible_ssh_pass=hadoop ansible_become_pass=qwe123 
+cdhserver2  ansible_ssh_user=hadoop ansible_ssh_pass=hadoop ansible_become_pass=qwe123
+cdhserver3  ansible_ssh_user=hadoop ansible_ssh_pass=hadoop ansible_become_pass=qwe123 
+cdhserver4  ansible_ssh_user=hadoop ansible_ssh_pass=hadoop ansible_become_pass=qwe123 
+
+
+[zookeeper]
+cdhserver2 id=1
+cdhserver3 id=2
+cdhserver4 id=3
+
+[hadoop:children]
+hadoop_datanode
+hadoop_namenode
+
+[hadoop_datanode]
+cdhserver2
+cdhserver3
+cdhserver4
+
+[hadoop_namenode]
+cdhserver1
+cdhserver2
+
+
+[all:vars]
+# 安装包目录
+package_dir='/application/app'
+
+# 文件根目录
+file_dir="/application/file"
+
+# 程序安装路径
+base_dir="/application/hadoop/app"

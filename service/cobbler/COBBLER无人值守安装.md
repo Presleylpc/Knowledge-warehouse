@@ -606,6 +606,7 @@ openssl-devel
 zlib-devel
 OpenIPMI-tools
 screen
+glibc.i686
 %end
 
 %post
@@ -613,7 +614,7 @@ systemctl disable postfix.service
 mkdir -p /root/.ssh
 chmod 700 /root/.ssh
 chown root.root /root/.ssh
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw==" >> /root/.ssh/authorized_keys
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbzUS7nxBf84htpzEXvQkRgFgPVbqLZTmadCWlH0KhQkfTvw+wxnnZZHHajeyarunwRRIXN8zhFwJy+xF5MKyl1sAzpGByZemBMFhr3bcAkQAK+jMyz901yRE8rbeboHKtREZ1jkFQLT2/oYwla2b7caXJs4FL9kH91VMHG5ySzCiu5Id01Ry6jqkR5x/qg9WOYI0lYWZ6ANpJhFUqEGo3p1+TXCfVLLZj17TCyf0kTJ8ZXC32dzJBeXTRuO0qKaiirLVFFpEmthyDJhg9efcwvHjVkhhQtTkEJ87G2eUptmRy92WgHfCx2QThn83K+4Dh9ELB4RkzUee6Xry5aC0f " >> /root/.ssh/authorized_keys
 chmod 644 /root/.ssh/authorized_keys
 chown root.root /root/.ssh/authorized_keys
 
@@ -635,14 +636,14 @@ $6$e1lN56QP4/EDZDoF$Km7jBpZo16ZBEuevOHy0RqputxWTDX7SFu7ppl28dPeZ7wJOnGTsjXsCzG2d
 mkdir -p /root/.ssh
 chmod 700 /root/.ssh
 chown root.root /root/.ssh
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw==" >> /root/.ssh/authorized_keys
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbzUS7nxBf84htpzEXvQkRgFgPVbqLZTmadCWlH0KhQkfTvw+wxnnZZHHajeyarunwRRIXN8zhFwJy+xF5MKyl1sAzpGByZemBMFhr3bcAkQAK+jMyz901yRE8rbeboHKtREZ1jkFQLT2/oYwla2b7caXJs4FL9kH91VMHG5ySzCiu5Id01Ry6jqkR5x/qg9WOYI0lYWZ6ANpJhFUqEGo3p1+TXCfVLLZj17TCyf0kTJ8ZXC32dzJBeXTRuO0qKaiirLVFFpEmthyDJhg9efcwvHjVkhhQtTkEJ87G2eUptmRy92WgHfCx2QThn83K+4Dh9ELB4RkzUee6Xry5aC0f " >> /root/.ssh/authorized_keys
 chmod 644 /root/.ssh/authorized_keys
 chown root.root /root/.ssh/authorized_keys
 ```
 
 其中 echo "<公钥>"  >> /root/.ssh/authorized_keys 的公钥生成方式为
 
-1. 在一台linux服务器上将root 的密码修改为与即将远程安装的服务器的密码一致，本例中为 qwe123
+1. 在ansible 服务器上将root 的密码修改为与即将远程安装的服务器的密码一致，本例中为 qwe123
 
 2. 使用ssh-keygen生成秘钥，过程一路回车。
 
@@ -650,10 +651,10 @@ chown root.root /root/.ssh/authorized_keys
 
 4. ```bash
    # cat ~/.ssh/id_rsa.pub 
-   ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv6MyTZ4DFKO1V2h21HCnSOg9aZoUn3alcg3UhLwfuIFD0rIYtklN4kUreDNwmWq23LDN3j3bhDBElzuMf2yYROK08yW3brT8FHf9IqUqxlSjUEYi4wnifdxzBvl+ub+afqf/ZOJ5/cHv/YLBQ8AwDsiuHFfAS5IFwnXXCD8E6JDm5fxoTU3rK8U92JJYns6FVFk2HbrKnq5cMLWHHWoWo1IoDD9vpt8yH06QyAKsBMhyzVJaPevYffz1Ol77bOgmu+8UGgtdfnYFxASRtLuFV1q/K5oWxZ9xFjzSugqTKgpGyfgZhF6vRZDA9Auu26U23FSEKU37rPDyM3lOG6yAEw== root@cobbler
+   ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbzUS7nxBf84htpzEXvQkRgFgPVbqLZTmadCWlH0KhQkfTvw+wxnnZZHHajeyarunwRRIXN8zhFwJy+xF5MKyl1sAzpGByZemBMFhr3bcAkQAK+jMyz901yRE8rbeboHKtREZ1jkFQLT2/oYwla2b7caXJs4FL9kH91VMHG5ySzCiu5Id01Ry6jqkR5x/qg9WOYI0lYWZ6ANpJhFUqEGo3p1+TXCfVLLZj17TCyf0kTJ8ZXC32dzJBeXTRuO0qKaiirLVFFpEmthyDJhg9efcwvHjVkhhQtTkEJ87G2eUptmRy92WgHfCx2QThn83K+4Dh9ELB4RkzUee6Xry5aC0f  root@ansibletower
    ```
 
-   将<用户名>@<主机名>部分去掉 其他部分即为秘钥，本例中去掉 root@cobbler
+   将<用户名>@<主机名>部分去掉 其他部分即为秘钥，本例中去掉 root@ansibletower
 
 
 
@@ -675,6 +676,8 @@ chown root.root /root/.ssh/authorized_keys
 # cobbler system add --name=cdhserver3 --mac=00:50:56:33:2C:EC --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.22 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver3 --name-servers="192.168.0.156 114.114.114.114"
 
 # cobbler system add --name=cdhserver4 --mac=00:0C:29:B5:61:AD --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.23 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=cdhserver4 --name-servers="192.168.0.156 114.114.114.114"
+
+# cobbler system add --name=ansibletower --mac=08:00:27:BA:8D:BC --profile=CentOS-7.5-x86_64 --ip-address=192.168.0.14 --subnet=255.255.255.0 --gateway=192.168.0.1 --interface=eth0 --static=1 --hostname=ansibletower --name-servers="192.168.0.156 114.114.114.114"
 
 ```
 --name 自定义，但不能重复 镜像唯一标识
