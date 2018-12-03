@@ -1,0 +1,16 @@
+NN_NAME: "nn"
+HADOOP_DATA_DIR: "/application/hadoop/data/hadoop"
+
+ZK_ADDR_TMP: "{% for h in groups['zookeeper'] %}{{ h }}:2181,{% endfor %}"
+ZK_ADDR: "{{ ZK_ADDR_TMP.rstrip(',') }}"
+
+NN_LIST_TMP: "{% for h in groups['hadoop_namenode'] %}{{ h }},{% endfor %}"
+NN_LIST: "NN_LIST_TMP.rstrip(',')"
+
+QJOURNAL_URI_TMP: "{% for h in  groups['hadoop_Journal'] %}{{ h }}:8485;{% endfor %}"
+QJOURNAL_URI: "QJOURNAL_URI_TMP.rstrip(';')"
+
+NAMENODE_DIR: "{{ HADOOP_DATA_DIR }}/namenode"
+HADOOP_TMP_DIR: "{{ HADOOP_DATA_DIR }}/tmp"
+BLOCKS_DIR: "{{ HADOOP_DATA_DIR }}/blocks"
+QJOURNAL_DIR: "{{ HADOOP_DATA_DIR }}/journaldata"

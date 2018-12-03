@@ -13,6 +13,7 @@ cdhserver4 id=3
 [hadoop:children]
 hadoop_datanode
 hadoop_namenode
+hadoop_Journal
 
 [hadoop_datanode]
 cdhserver2
@@ -23,6 +24,10 @@ cdhserver4
 cdhserver1
 cdhserver2
 
+[hadoop_Journal]
+cdhserver1
+cdhserver2
+cdhserver3
 
 [all:vars]
 # 安装包目录
