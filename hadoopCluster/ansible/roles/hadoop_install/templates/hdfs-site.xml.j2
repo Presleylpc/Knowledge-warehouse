@@ -65,12 +65,12 @@
 
 <property>
 <name>dfs.ha.namenodes.{{ NN_NAME }}</name>
-<value>nn1,nn2</value>
+<value>{{ NAMENODE }}</value>
 </property>
 <!-- 为每个 NameNode 设置 RPC 地址 -->
 {% for h in groups['hadoop_namenode'] %}
 ￼<property> 
-<name>dfs.namenode.rpc-address.{{ NN_NAME }}.nn1</name>
+<name>dfs.namenode.rpc-address.{{ NN_NAME }}.{{ hostvars[h]['id'] }}</name>
 <value>{{ h }}:9000</value>
 </property>
 
@@ -79,7 +79,7 @@
 <!-- 为每个 NameNode 设置对外的 HTTP 地址 -->
 {% for h in groups['hadoop_namenode'] %}
 <property> 
-<name>dfs.namenode.http-address.{{ NN_NAME }}.nn1</name> 
+<name>dfs.namenode.http-address.{{ NN_NAME }}.{{ hostvars[h]['id'] }}</name> 
 <value>{{ h }}:50070</value>
 </property>
 
@@ -104,7 +104,7 @@
 </property>
 <property>
 <name>dfs.ha.fencing.ssh.private-key-files</name>
-<value>~/.ssh/id_rsa</value>
+<value>/application/hadoop/.ssh/id_rsa</value>
 </property>
 
 <!-- JournalNode 所在节点上的一个目录 -->

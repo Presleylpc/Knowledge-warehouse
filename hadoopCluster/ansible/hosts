@@ -21,8 +21,12 @@ cdhserver3
 cdhserver4
 
 [hadoop_namenode]
-cdhserver1
-cdhserver2
+cdhserver1 id=nn1
+cdhserver2 id=nn2
+
+[hadoop_rm]
+cdhserver1 rm_id=rm1
+cdhserver2 rm_id=rm2
 
 [hadoop_Journal]
 cdhserver1
