@@ -518,14 +518,14 @@ hadoop-daemon.sh start journalnode
 
 - 在nn1 上 初始化 journalnode
 ```
+hdfs  namenode  -format
 hdfs namenode -initializeSharedEdits -nonInteractive
 ```
 
 ### 步骤 2:启动 nn1 并格式化
 在nn1上执行
 ```
- hadoop-daemon.sh start namenode
- hdfs  namenode  -format
+hadoop-daemon.sh start namenode
 ```
 
 ### 步骤 3:启动 nn2 从 nn1 上拉取最新的 FSimage
@@ -537,7 +537,7 @@ hdfs namenode -bootstrapStandby -nonInteractive
 ### 步骤 4: 初始化zookeeper
 在nn1上执行
 ```
-bin/hdfs namenode -bootstrapStandby -nonInteractive
+hadoop-daemon.sh start zkfc
 ```
 ### 步骤 5: 关闭节点
 在nn1上执行
