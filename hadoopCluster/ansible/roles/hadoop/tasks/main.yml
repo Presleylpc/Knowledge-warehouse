@@ -8,13 +8,33 @@
 
   - name: 创建软连接
     file: state=link src={{ base_dir }}/hadoop-2.6.0-cdh5.14.2  dest={{ base_dir }}/hadoop
-	
+
   - name: 配置环境变量
-    shell: echo '{{ item }}'>> ~/.bash_profile 
+    shell: echo "{{ item }}">> ~/.bash_profile 
     with_items:
     - HADOOP_HOME=/application/hadoop/app/hadoop
     - PATH=$HADOOP_HOME/bin:$PATH
     - export HADOOP_HOME PATH
+  - name: 分发配置文件
+    template: src={{ item.template }} dest={{ item.file }}
+    with_items:
+    - { template: "core-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/core-site.xml"} 
+    - { template: "hdfs-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/hdfs-site.xml"}
+    - { template: "slaves.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/slaves"}
+ 
+  - name: 添加java环境变量
+    lineinfile: regexp='^export JAVA_HOME=' line="^export JAVA_HOME={{ base_dir }}/jdk" path=/application/hadoop/app/hadoop/etc/hadoop/hadoop-env.sh
+  
+  when: p.stat.isreg is not defined
 
-   - name: 分发配置文件
-    template: src=zoo.cfg.j2 dest={{ base_dir }}/zookeeper/conf/zoo.cfg
+- name: 分发配置文件
+  template: src={{ item.template }} dest={{ item.file }}
+  with_items:
+  - { template: "core-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/core-site.xml"} 
+  - { template: "hdfs-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/hdfs-site.xml"}
+  - { template: "slaves.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/slaves"}
+  - { template: "mapred-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/mapred-site.xml"}
+  - { template: "mapred-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/mapred-site.xml"}
+
+
+
