@@ -1,0 +1,72 @@
+- name: 检查hadoop是否安装
+  stat: path={{ base_dir }}/hadoop
+  register: p
+  
+- block:
+  - name: 分发hadoop
+    unarchive: src={{ package_dir }}/hadoop-2.6.0-cdh5.14.2.tar.gz  dest={{ base_dir }}
+
+  - name: 创建软连接
+    file: state=link src={{ base_dir }}/hadoop-2.6.0-cdh5.14.2  dest={{ base_dir }}/hadoop
+
+  - name: 配置环境变量
+    shell: echo '{{ item }}'>> ~/.bash_profile 
+    with_items:
+    - HADOOP_HOME=/application/hadoop/app/hadoop
+    - PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+    - export HADOOP_HOME PATH
+ 
+  - name: 分发配置文件
+    template: src={{ item.template }} dest={{ item.file }}
+    with_items:
+    - { template: "core-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/core-site.xml"} 
+    - { template: "hdfs-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/hdfs-site.xml"}
+    - { template: "slaves.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/slaves"}
+    - { template: "mapred-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/mapred-site.xml"}
+    - { template: "yarn-site.xml.j2", file: "{{ base_dir }}/hadoop/etc/hadoop/yarn-site.xml"}
+
+  - name: 添加java环境变量
+    lineinfile: regexp='^export JAVA_HOME=' line="export JAVA_HOME={{ base_dir }}/jdk" path=/application/hadoop/app/hadoop/etc/hadoop/hadoop-env.sh
+
+  - name: 创建目录
+    file: path={{ item }} state=directory
+    with_items:
+    - "{{ NAMENODE_DIR }}"
+    - "{{ HADOOP_TMP_DIR }}"
+    - "{{ BLOCKS_DIR }}"
+    - "{{ QJOURNAL_DIR }}"
+    - "{{ HADOOP_DATA_DIR }}/pid"
+
+  - name: 创建文件
+    file: path="{{ base_dir }}/hadoop/etc/hadoop/excludes"   state=touch 
+
+  - name: 启动journalnode
+    shell: source ~/.bash_profile && hadoop-daemon.sh start journalnode
+    when: 'inventory_hostname in groups.hadoop_Journal'
+
+  - name: 初始化namenode
+    shell: source ~/.bash_profile && hdfs namenode -format  -nonInteractive
+    when: 'inventory_hostname in groups.hadoop_namenode[0]'
+  
+  - name: 初始化journalnode  
+    shell: source ~/.bash_profile && hdfs namenode -initializeSharedEdits -nonInteractive -force
+    when: 'inventory_hostname in groups.hadoop_Journal[0]'
+
+  - name: 启动nn1
+    shell: source ~/.bash_profile && hadoop-daemon.sh start namenode
+    when: 'inventory_hostname in groups.hadoop_namenode[0]'
+
+  - name: nn2同步  
+    shell: source ~/.bash_profile && hdfs namenode -bootstrapStandby -nonInteractive
+    when: 'inventory_hostname in groups.hadoop_namenode[1]'
+
+  - name: 初始化zookeeper
+    shell: source ~/.bash_profile && hadoop-daemon.sh start zkfc
+    when: 'inventory_hostname in groups.hadoop_namenode[0]'
+
+  - name: 关闭nn1
+    shell: source ~/.bash_profile && hadoop-daemon.sh stop namenode
+    when: 'inventory_hostname in groups.hadoop_namenode[0]'
+
+  when: p.stat.isreg is not defined
+

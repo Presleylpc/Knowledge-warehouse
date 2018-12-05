@@ -1,0 +1,27 @@
+- name: 检查spark是否安装
+  stat: path={{ base_dir }}/spark
+  register: p
+  
+- block:
+
+  - name: 分发文件
+    unarchive: src={{ package_dir }}/spark-1.6.0-cdh5.14.2.tar.gz  dest={{ base_dir }}
+
+  - name: 创建软连接
+    file: src={{ base_dir }}/spark-1.6.0-cdh5.14.2 dest={{ base_dir }}/spark state=link
+ 
+  - name: 添加环境变量
+    shell : echo '{{ item }}' >> ~/.bash_profile
+    with_items:
+    - export SPARK_HOME={{ base_dir }}/spark   
+    - export PATH=$PATH:$SPARK_HOME/bin
+
+  - name: 配置环境变量
+    shell: source  ~/.bash_profile && cd $SPARK_HOME/conf  && cp spark-env.sh.template spark-env.sh && echo "HADOOP_CONF_DIR={{ base_dir }}/hadoop/etc/hadoop" >> spark-env.sh && echo 'SPARK_DIST_CLASSPATH=$(hadoop classpath)'>> spark-env.sh &&  echo 'SPARK_CLASSPATH={{ base_dir }}/spark/lib/'>> spark-env.sh
+  
+  when: p.stat.isreg is not defined
+
+
+
+
+

@@ -1,0 +1,26 @@
+- name: 启动 historyserver
+  shell: source ~/.bash_profile && mr-jobhistory-daemon.sh start historyserver
+
+- name: 启动 namenode
+  shell: source ~/.bash_profile && hadoop-daemon.sh start namenode
+  when: 'inventory_hostname in groups.hadoop_namenode'
+
+- name: 启动 datanode
+  shell: source ~/.bash_profile && hadoop-daemon.sh start datanode
+  when: 'inventory_hostname in groups.hadoop_datanode'
+
+- name: 启动 journalnode
+  shell: source ~/.bash_profile && hadoop-daemon.sh start journalnode
+  when: 'inventory_hostname in groups.hadoop_Journal'
+
+- name: 启动 zkfc
+  shell: source ~/.bash_profile && hadoop-daemon.sh start zkfc
+  when: 'inventory_hostname in groups.hadoop_namenode'
+
+- name: 启动rm
+  shell: source ~/.bash_profile && yarn-daemon.sh start resourcemanager
+  when: 'inventory_hostname in groups.hadoop_rm'
+
+- name: 启动nm
+  shell: source ~/.bash_profile && yarn-daemon.sh start nodemanager
+  when: 'inventory_hostname in groups.hadoop_datanode'

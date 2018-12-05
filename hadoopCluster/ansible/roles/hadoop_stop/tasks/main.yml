@@ -1,0 +1,27 @@
+- name: 关闭rm
+  shell: source ~/.bash_profile && yarn-daemon.sh stop resourcemanager
+  when: 'inventory_hostname in groups.hadoop_rm'
+
+- name: 关闭nm
+  shell: source ~/.bash_profile && yarn-daemon.sh stop nodemanager
+  when: 'inventory_hostname in groups.hadoop_datanode'
+
+- name: 关闭 historyserver
+  shell: source ~/.bash_profile && mr-jobhistory-daemon.sh stop historyserver
+
+- name: 关闭 namenode
+  shell: source ~/.bash_profile && hadoop-daemon.sh stop namenode
+  when: 'inventory_hostname in groups.hadoop_namenode'
+
+- name: 关闭 datanode
+  shell: source ~/.bash_profile && hadoop-daemon.sh stop datanode
+  when: 'inventory_hostname in groups.hadoop_datanode'
+
+- name: 关闭 journalnode
+  shell: source ~/.bash_profile && hadoop-daemon.sh stop journalnode
+  when: 'inventory_hostname in groups.hadoop_Journal'
+
+- name: 关闭 zkfc
+  shell: source ~/.bash_profile && hadoop-daemon.sh stop zkfc
+  when: 'inventory_hostname in groups.hadoop_namenode'
+
