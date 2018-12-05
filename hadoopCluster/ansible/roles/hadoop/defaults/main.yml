@@ -1,0 +1,12 @@
+ZOOKEEPER_TMP:"{% for h in  groups['zookeeper'] %}{{ h }}:2181,{% endfor %}"
+ZOOKEEPER_INFO:"{{ ZOOKEEPER_TMP.rstrip(',') }}"
+
+NAMENODE_TMP:"{% for h in  groups['hadoop_namenode'] %}{{ h }},{% endfor %}"
+NAMENODE_INFO:"{{ NAMENODE_TMP.rstrip(',') }}"
+
+HDFS_CLUSTER_NAME:"nn"
+
+DATA_BASE_DIR:"{{ data_dir }}/hadoop"
+TMP_DIR:"{{ DATA_BASE_DIR }}/tmp"
+NAMENODE_LOGS_DIR:"{{ DATA_BASE_DIR }}/logs"
+BLOCKS_DIR:"{{ DATA_BASE_DIR }}/blocks"
