@@ -103,6 +103,18 @@ export JAVA_HOME=/application/hadoop/app/jdk
 <value>/application/hadoop/data/tmp</value>
 </property>
 
+<!--优化 -->
+<!-- 修改io 缓存大小 默认4k-->
+<property>
+<name>io.file.buffer.size</name>
+<value>65536</value>
+</property>
+<!--  开启垃圾回收功能 24小时后自动删除-->
+<property>
+<name>fs.trash.interval</name>
+<value>1440</value>
+</property>
+
 </configuration>
 ```
 
@@ -152,10 +164,17 @@ export JAVA_HOME=/application/hadoop/app/jdk
 <value>268435456</value>
 </property>
 
-<!-- namenode  RPCs线程数量 -->
+<!-- Datanode 预留资源 10G-->
+<property>
+<name>dfs.datanode.du.reserved</name>
+<value>10737418240</value>
+</property>
+
+<!-- namenode  RPCs线程数量 20logN N为集群数量-->
+<!-- python -c 'import math;print(int(math.log(集群数量)*20))' -->
 <property>
 <name>dfs.namenode.handler.count</name>
-<value>200</value>
+<value>50</value>
 </property>
 	
 
@@ -518,11 +537,13 @@ hadoop-daemon.sh start journalnode
 
 - 在nn1 上 初始化 journalnode
 ```
-hdfs  namenode  -format
+# 格式化 nn1
+hdfs namenode -format
+# 初始化 journalnode
 hdfs namenode -initializeSharedEdits -nonInteractive
 ```
 
-### 步骤 2:启动 nn1 并格式化
+### 步骤 2:启动 nn1 
 在nn1上执行
 ```
 hadoop-daemon.sh start namenode
@@ -537,7 +558,7 @@ hdfs namenode -bootstrapStandby -nonInteractive
 ### 步骤 4: 初始化zookeeper
 在nn1上执行
 ```
-hadoop-daemon.sh start zkfc
+hdfs zkfc -formatZK
 ```
 ### 步骤 5: 关闭节点
 在nn1上执行
