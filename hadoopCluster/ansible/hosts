@@ -3,14 +3,17 @@ director
 server
 
 [director]
-cdhserver1 
+cdhserver1  role=master priority=100
+cdhserver2  role=slave  priority=90
 
 [server]
-cdhserver3 
-cdhserver4 
-cdhserver2
+cdhserver3   weight=3
+cdhserver4   weight=3
 
 
 [all:vars]
 v_ip=192.168.0.30
 lvs_type=DR
+lvs_id=LVS_DEVEL
+port=80
+

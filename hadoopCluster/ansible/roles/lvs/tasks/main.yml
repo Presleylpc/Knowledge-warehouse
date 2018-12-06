@@ -1,6 +1,18 @@
 - block:
-  #- name: 关闭arp
-  #  shell: echo 'net.ipv4.conf.all.arp_ignore = 1' >> /etc/sysctl.conf && echo 'net.ipv4.conf.lo.arp_ignore = 1' >> /etc/sysctl.conf && echo 'net.ipv4.conf.all.arp_announce = 2' >> /etc/sysctl.conf && echo 'net.ipv4.conf.lo.arp_announce = 2' >> /etc/sysctl.conf && sysctl -p
+  - name: 关闭arp
+    lineinfile: 
+	  dest: /etc/sysctl.conf
+      state: present
+      regexp: {{ item.reg }}
+      line: {{ item.line }}
+	with_items:
+	  - {reg:'^net.ipv4.conf.all.arp_ignore',line:'net.ipv4.conf.all.arp_ignore = 1'}
+	  - {reg:'^net.ipv4.conf.lo.arp_ignore',line:'net.ipv4.conf.lo.arp_ignore = 1'}
+	  - {reg:'^net.ipv4.conf.all.arp_announce',line:'net.ipv4.conf.all.arp_announce = 2'}
+	  - {reg:'^net.ipv4.conf.lo.arp_announce',line:'net.ipv4.conf.lo.arp_announce = 2'}
+	
+  - name: 加载内核
+    shell:  sysctl -p
 
   - name: 配置网卡 创建网卡文件配置
     shell: touch /etc/sysconfig/network-scripts/ifcfg-lo:0  && >/etc/sysconfig/network-scripts/ifcfg-lo:0
@@ -23,42 +35,15 @@
   when: 'inventory_hostname  in groups.server  and  lvs_type == "DR"'
 
 - block:
-  - name: 安装服务
+  - name: 安装服务lvs,keepalived
     yum:
-      name: ipvsadm
+      name: ipvsadm,keepalived
       state: present
   
-  - name: 创建网卡配置
-    shell: touch /etc/sysconfig/network-scripts/ifcfg-eth0:0 && >/etc/sysconfig/network-scripts/ifcfg-eth0:0
-
-  - name: 置网卡 添加网卡信息
-    shell: echo '{{ item }}' >>/etc/sysconfig/network-scripts/ifcfg-eth0:0
-    with_items:
-    - "DEVICE=eth0:0" 
-    - "IPADDR={{ v_ip }}"
-    - "NETMASK=255.255.255.255" 
-    - "BROADCAST={{ v_ip }}"
-    - "ONBOOT=yes"
-  
-  - name: 启动虚拟网卡
-    shell: ifup eth0:0
-
-  - name: 查看路由是否存在
-    shell: route -n|grep 192.168.0.30  |wc -l
-    register: p  
- 
-  - name: 添加路由
-    shell: route add -host {{ v_ip }} dev eth0:0 && echo "1" > /proc/sys/net/ipv4/ip_forward 
-    when: p.stdout == 0
-
-  - name: 配置虚拟lvs
-    shell:
-      ipvsadm -A -t {{ v_ip }}:80 -s wlc;
-  
-  - name: 配置虚拟
-    shell: ipvsadm -a -t {{ v_ip }}:80 -r {{ item }}
-    with_inventory_hostnames: server
-
-  - name: 保存配置
-    shell: ipvsadm --save > /etc/sysconfig/ipvsadm
+  - name: 分发keepalived 文件分发
+    template: src=keepalived dest=/etc/keepalived/keepalived.conf
+	
+  - name: 启动lvs
+    service: name=keepalived state=restarted
+	
   when: 'inventory_hostname in groups.director and  lvs_type == "DR"'
