@@ -1,16 +1,16 @@
 - block:
   - name: 关闭arp
     lineinfile: 
-	  dest: /etc/sysctl.conf
+      dest: /etc/sysctl.conf
       state: present
-      regexp: {{ item.reg }}
-      line: {{ item.line }}
-	with_items:
-	  - {reg:'^net.ipv4.conf.all.arp_ignore',line:'net.ipv4.conf.all.arp_ignore = 1'}
-	  - {reg:'^net.ipv4.conf.lo.arp_ignore',line:'net.ipv4.conf.lo.arp_ignore = 1'}
-	  - {reg:'^net.ipv4.conf.all.arp_announce',line:'net.ipv4.conf.all.arp_announce = 2'}
-	  - {reg:'^net.ipv4.conf.lo.arp_announce',line:'net.ipv4.conf.lo.arp_announce = 2'}
-	
+      regexp: "{{ item.reg }}"
+      line: "{{ item.line }}"
+    with_items:
+      - {reg: '^net.ipv4.conf.all.arp_ignore',line: 'net.ipv4.conf.all.arp_ignore = 1'}
+      - {reg: '^net.ipv4.conf.lo.arp_ignore',line: 'net.ipv4.conf.lo.arp_ignore = 1'}
+      - {reg: '^net.ipv4.conf.all.arp_announce',line: 'net.ipv4.conf.all.arp_announce = 2'}
+      - {reg: '^net.ipv4.conf.lo.arp_announce',line: 'net.ipv4.conf.lo.arp_announce = 2'}
+
   - name: 加载内核
     shell:  sysctl -p
 
@@ -41,9 +41,9 @@
       state: present
   
   - name: 分发keepalived 文件分发
-    template: src=keepalived dest=/etc/keepalived/keepalived.conf
-	
+    template: src=keepalived.conf.j2 dest=/etc/keepalived/keepalived.conf
+
   - name: 启动lvs
     service: name=keepalived state=restarted
-	
+
   when: 'inventory_hostname in groups.director and  lvs_type == "DR"'

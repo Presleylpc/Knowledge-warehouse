@@ -2,8 +2,8 @@ global_defs {
    router_id {{ lvs_id }}  # 设置lvs的id，在一个网络内应该是唯一的
 }  
 vrrp_instance VI_1 {  
-    state {{ ROLE }}   #指定Keepalived的角色，MASTER为主，BACKUP为备          
-    interface eth1  #指定Keepalived的角色，MASTER为主，BACKUP为备
+    state {{ role }}   #指定Keepalived的角色，MASTER为主，BACKUP为备          
+    interface eth0  #指定Keepalived的角色，MASTER为主，BACKUP为备
     virtual_router_id 51  #虚拟路由编号，主备要一致
     priority {{ priority }}  #定义优先级，数字越大，优先级越高，主DR必须大于备用DR    
     advert_int 1  #检查间隔，默认为1s
@@ -24,8 +24,8 @@ virtual_server {{ v_ip }} {{ port }} {
     persistence_timeout 0          
     protocol TCP
 	{% for h in groups.server %}
-    real_server {{ h }} {{ port }} {  # 指定real server1的IP地址
-        weight {{ weight }}   # 配置节点权值，数字越大权重越高              
+    real_server {{ hostvars[h]['ansible_default_ipv4']['address'] }} {{ port }} {  # 指定real server1的IP地址
+        weight {{ hostvars[h]['weight'] }}   # 配置节点权值，数字越大权重越高              
         TCP_CHECK {  
         connect_timeout 10         
         nb_get_retry 3  
