@@ -1,0 +1,49 @@
+- block:
+  - name: 关闭arp
+    lineinfile: 
+      dest: /etc/sysctl.conf
+      state: present
+      regexp: "{{ item.reg }}"
+      line: "{{ item.line }}"
+    with_items:
+      - {reg: '^net.ipv4.conf.all.arp_ignore',line: 'net.ipv4.conf.all.arp_ignore = 1'}
+      - {reg: '^net.ipv4.conf.lo.arp_ignore',line: 'net.ipv4.conf.lo.arp_ignore = 1'}
+      - {reg: '^net.ipv4.conf.all.arp_announce',line: 'net.ipv4.conf.all.arp_announce = 2'}
+      - {reg: '^net.ipv4.conf.lo.arp_announce',line: 'net.ipv4.conf.lo.arp_announce = 2'}
+
+  - name: 加载内核
+    shell:  sysctl -p
+
+  - name: 配置网卡 创建网卡文件配置
+    shell: touch /etc/sysconfig/network-scripts/ifcfg-lo:0  && >/etc/sysconfig/network-scripts/ifcfg-lo:0
+
+  - name: 配置网卡 添加网卡信息
+    shell: echo '{{ item }}' >>/etc/sysconfig/network-scripts/ifcfg-lo:0 
+    with_items:
+    - "DEVICE=lo:0"
+    - "IPADDR={{ v_ip }}"
+    - "NETMASK=255.255.255.255" 
+    - "BROADCAST={{ v_ip }}"
+    - "ONBOOT=yes"
+    - "NAME=loopback" 
+
+  - name: 重启网卡
+    shell: ifdown lo:0 && ifup lo:0
+
+  - name: 添加路由
+    shell: route add -host {{ v_ip }} dev lo:0
+  when: 'inventory_hostname  in groups.server  and  lvs_type == "DR"'
+
+- block:
+  - name: 安装服务lvs,keepalived
+    yum:
+      name: ipvsadm,keepalived
+      state: present
+  
+  - name: 分发keepalived 文件分发
+    template: src=keepalived.conf.j2 dest=/etc/keepalived/keepalived.conf
+
+  - name: 启动lvs
+    service: name=keepalived state=restarted
+
+  when: 'inventory_hostname in groups.director and  lvs_type == "DR"'
