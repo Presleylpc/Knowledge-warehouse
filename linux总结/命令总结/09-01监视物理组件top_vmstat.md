@@ -35,8 +35,6 @@ PID     USER      PR    NI   VIRT    RES     SHR    S   %CPU    %MEM        TIME
 
   - 第2段：系统运行时间，未重启的时间，时间越长系统越稳定。
 
-     
-
     - 格式：up xx days, HH:MM
     - 例如：241 days, 20:11, 表示连续运行了241天20小时11分钟
 

@@ -594,6 +594,7 @@ $SNIPPET('pre_anamon')
 @compat-libraries
 @debugging
 @development
+sysstat
 tree
 nmap
 sysstat
