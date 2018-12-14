@@ -12,8 +12,8 @@ cdhserver4   weight=3
 
 
 [all:vars]
-v_ip=192.168.0.30
-lvs_type=DR
-lvs_id=LVS_DEVEL
-port=80
+v_ip=192.168.0.30     # 虚拟IP地址
+lvs_type=DR           # lvs类型 目前只支持DR模式
+lvs_id=LVS_DEVEL      
+port=80               # 需要代理的端口
 
