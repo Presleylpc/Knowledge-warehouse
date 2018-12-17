@@ -244,161 +244,121 @@ The ID of the thread group to which a task belongs.  It is the PID  of  the  thr
 
 
 ##### 29. TIME  --  CPU Time 
-Total CPU time the task has used since it started.  When Cumu‐ lative  mode  is  On, each process is listed with the cpu time that it and its dead children have used.  You  toggle  Cumula‐ tive mode with `S`, which is both a command-line option and an interactive command.  See  the  `S`  interactive  command  for additional information regarding this mode.
+任务启动以来使用的总CPU时间。当Cumu lative模式为On时，每个进程都列出了它及其死去的子进程使用的cpu时间。用'S'切换Cumula-tive模式，它既是命令行选项，又是交互式命令。
 
 
 ##### 30. TIME+  --  CPU Time, hundredths 
 The same as TIME, but reflecting more granularity through hundredths of a second.
 
 
-##### 31. TPGID  --  Tty Process Group Id
-    The process group ID of the foreground process  for  the  con‐
-    nected tty, or -1 if a process is not connected to a terminal.
-    By convention, this value equals the process ID (see  PID)  of
-    the process group leader (see PGRP).
+##### 31. TPGID  --  Tty Process Group Id 
+The process group ID of the foreground process  for  the  connected tty, or -1 if a process is not connected to a terminal. By convention, this value equals the process ID (see  PID)  of the process group leader (see PGRP).
 
 
-##### 32. TTY  --  Controlling Tty
-    The  name  of  the  controlling terminal.  This is usually the
-    device (serial port, pty, etc.) from  which  the  process  was
-    started,  and  which  it uses for input or output.  However, a
-    task need not be associated with a  terminal,  in  which  case
-    you'll see `?' displayed.
+##### 32. TTY  --  Controlling Tty 
+The  name  of  the  controlling terminal.  This is usually the device (serial port, pty, etc.) from  which  the  process  was started,  and  which  it uses for input or output.  However, a task need not be associated with a  terminal,  in  which  case you'll see `?` displayed.
 
 
 ##### 33. UID  --  User Id
-    The effective user ID of the task's owner.
+The effective user ID of the task's owner.
 
 
-##### 34. USED  --  Memory in Use (KiB)
-    This  field  represents the non-swapped physical memory a task
-    has used (RES) plus the non-resident portion  of  its  address
-    space (SWAP).
+##### 34. USED  --  Memory in Use (KiB) 
+This  field  represents the non-swapped physical memory a task has used (RES) plus the nonresident portion  of  its  address space (SWAP).
 
 
 ##### 35. USER  --  User Name
-    The effective user name of the task's owner.
+The effective user name of the task's owner.
 
 
 ##### 36. VIRT  --  Virtual Memory Size (KiB)(重要) 
 任务使用的虚拟内存总量。它包括所有代码、数据和共享库，以及已经交换出去的页面和已经映射但没有使用的页面。
 
 
-##### 37. WCHAN  --  Sleeping in Function
-    Depending on the availability of the  kernel  link  map  (Sys‐
-    tem.map),  this field will show the name or the address of the
-    kernel function in which the task is currently sleeping.  Run‐
-    ning tasks will display a dash ('-') in this column.
-    
-    By  displaying  this  field,  top's  own  working set could be
-    increased by over 700Kb,  depending  on  the  kernel  version.
-    Should  that  occur, your only means of reducing that overhead
-    will be to stop and restart top.
+##### 37. WCHAN  --  Sleeping in Function 
+Depending on the availability of the  kernel  link  map  (System.map),  this field will show the name or the address of the kernel function in which the task is currently sleeping.  Running tasks will display a dash ('-') in this column.
+
+By  displaying  this  field,  top's  own  working set could be increased by over 700Kb,  depending  on  the  kernel  version. Should  that  occur, your only means of reducing that overhead will be to stop and restart top.
 
 
-##### 38. nDRT  --  Dirty Pages Count
-    The number of pages that have been modified  since  they  were
-    last  written to auxiliary storage.  Dirty pages must be writ‐
-    ten to auxiliary storage  before  the  corresponding  physical
-    memory location can be used for some other virtual page.
+##### 38. nDRT  --  Dirty Pages Count 
+从上次写入辅助存储器以来被修改的页数。在将相应的物理内存位置用于其他虚拟页之前，必须将脏页写入辅助存储器。
 
 
-##### 39. nMaj  --  Major Page Fault Count
-    The number of major page faults that have occurred for a task.
-    A page fault occurs when a process attempts to  read  from  or
-    write  to  a virtual page that is not currently present in its
-    address space.  A major page fault is when  auxiliary  storage
-    access is involved in making that page available.
+##### 39. nMaj  --  Major Page Fault Count 
+The number of major page faults that have occurred for a task. A page fault occurs when a process attempts to  read  from  or write  to  a virtual page that is not currently present in its address space.  A major page fault is when  auxiliary  storage access is involved in making that page available.
 
 
-##### 40. nMin  --  Minor Page Fault count
-    The number of minor page faults that have occurred for a task.
-    A page fault occurs when a process attempts to  read  from  or
-    write  to  a virtual page that is not currently present in its
-    address space.  A minor page fault does not involve  auxiliary
-    storage access in making that page available.
+##### 40. nMin  --  Minor Page Fault count 
+The number of minor page faults that have occurred for a task. A page fault occurs when a process attempts to  read  from  or write  to  a virtual page that is not currently present in its address space.  A minor page fault does not involve  auxiliary storage access in making that page available.
 
 
 ##### 41. nTH  --  Number of Threads
-    The number of threads associated with a process.
+The number of threads associated with a process.
 
 
-##### 42. nsIPC  --  IPC namespace
-    The Inode of the namespace used to isolate interprocess commu‐
-    nication (IPC) resources such as  System  V  IPC  objects  and
-    POSIX message queues.
+##### 42. nsIPC  --  IPC namespace 
+The Inode of the namespace used to isolate interprocess communication (IPC) resources such as  System  V  IPC  objects  and POSIX message queues.
 
 
 ##### 43. nsMNT  --  MNT namespace
-    The  Inode  of  the namespace used to isolate filesystem mount
-    points thus offering different views of the filesystem hierar‐
-    chy.
+The  Inode  of  the namespace used to isolate filesystem mount points thus offering different views of the filesystem hierarchy.
 
 
 ##### 44. nsNET  --  NET namespace
-    The  Inode  of the namespace used to isolate resources such as
-    network devices, IP addresses, IP routing, port numbers, etc.
+The  Inode  of the namespace used to isolate resources such as network devices, IP addresses, IP routing, port numbers, etc.
 
 
-##### 45. nsPID  --  PID namespace
-    The Inode of the namespace used to isolate process ID  numbers
-    meaning  they  need not remain unique.  Thus, each such names‐
-    pace could have its own `init' (PID #1) to manage various ini‐
-    tialization tasks and reap orphaned child processes.
+##### 45. nsPID  --  PID namespace 
+The Inode of the namespace used to isolate process ID  numbers meaning  they  need not remain unique.  Thus, each such names‐ pace could have its own `init` (PID #1) to manage various ini‐ tialization tasks and reap orphaned child processes.
 
 
-##### 46. nsUSER  --  USER namespace
-    The  Inode of the namespace used to isolate the user and group
-    ID numbers.  Thus, a process could have a normal  unprivileged
-    user  ID outside a user namespace while having a user ID of 0,
-    with full root privileges, inside that namespace.
+##### 46. nsUSER  --  USER namespace 
+The  Inode of the namespace used to isolate the user and group ID numbers.  Thus, a process could have a normal  unprivileged user  ID outside a user namespace while having a user ID of 0, with full root privileges, inside that namespace.
 
 
-##### 47. nsUTS  --  UTS namespace
-    The Inode of the namespace used to isolate  hostname  and  NIS
-    domain name.  UTS simply means "UNIX Time-sharing System".
+##### 47. nsUTS  --  UTS namespace 
+The Inode of the namespace used to isolate  hostname  and  NIS domain name.  UTS simply means "UNIX Time-sharing System".
 
 
-##### 48. vMj  --  Major Page Fault Count Delta
-    The  number  of major page faults that have occurred since the
-    last update (see nMaj).
+##### 48. vMj  --  Major Page Fault Count Delta 
+The  number  of major page faults that have occurred since the last update (see nMaj).
 
 
 ##### 49. vMn  --  Minor Page Fault Count Delta
-    The number of minor page faults that have occurred  since  the
-    last update (see nMin).
+The number of minor page faults that have occurred  since  the last update (see nMin).
 
 
 
 ### top命令选项
 
-- `-b`
+#### `-b`
 以批处理模式启动top，这对于将输出从top发送到其他程序或文件很有用。在这种模式下，top将不接受输入并运行，直到您使用“-n”命令行选项设置的迭代限制或终止为止。
 
-- `-c` Command-line/Program-name
+#### `-c` Command-line/Program-name
 显示程序的命令行 或者程序名称，状态颠倒：如果top默认显示命令行，那么现在该字段将显示程序名，反之亦然。
 
-- `-d`
+#### `-d`
 屏幕刷新间隔时间
 
-- `-H` Threads-mode operation
+#### `-H` Threads-mode operation (重要)
 指示top显示单个线程。如果没有这个命令行选项，则显示每个进程中所有线程的总和。可以通过“H”交互命令对此进行更改。
 
-- `-i`
-在最后一个被记住的“i”状态颠倒的情况下开始。当此切换关闭时，将不会显示自上次更新以来未使用任何CPU的任务。
+#### `-i`
+  在最后一个被记住的“i”状态颠倒的情况下开始。当此切换关闭时，将不会显示自上次更新以来未使用任何CPU的任务。
 
-- `-n <次数>`
-循环显示的次数。
+#### `-n <次数>`
+  循环显示的次数。
 
-- `-o`  Override-sort-field as:  -o fieldname
-指定将排序任务的字段的名称，独立于配置文件中反映的内容。您可以在字段名前面加上“+”或“-”来覆盖排序方向。“+”将强制从高到低排序，而“-”将确保从低到高排序。
+#### `-o`  Override-sort-field as:  -o fieldname (重要)
+  指定将排序任务的字段的名称，独立于配置文件中反映的内容。您可以在字段名前面加上“+”或“-”来覆盖排序方向。“+”将强制从高到低排序，而“-”将确保从低到高排序。
 
-- `p` Monitor-PIDs mode as:  -pN1 -pN2 ...  or  -pN1,N2,N3 ...
-只监视具有指定进程ID的进程。可以提供一个逗号分隔的列表，最多包含20个pid。
-**“p”、“u”和“U”命令行选项是互斥的。**
+#### `p` Monitor-PIDs mode as:  -pN1 -pN2 ...  or  -pN1,N2,N3 ...(重要)
+  只监视具有指定进程ID的进程。可以提供一个逗号分隔的列表，最多包含20个pid。
+  **“p”、“u”和“U”命令行选项是互斥的。**
 
--  -u | -U  :User-filter-mode as:  -u | -U number or name
-只显示与给定用户ID或用户名匹配的进程。
+####  -u | -U  :User-filter-mode as:  -u | -U number or name
+  只显示与给定用户ID或用户名匹配的进程。
 
 
 
@@ -459,8 +419,8 @@ Press 'h' or '?' for help with Windows, any other key to continue
 - -s：显示内存相关统计信息及多种系统活动数量。
 - delay：刷新时间间隔。如果不指定，只显示一条结果。
 - count：刷新次数。如果不指定刷新次数，但指定了刷新时间间隔，这时刷新次数为无穷。
-- -d：显示磁盘相关统计信息。
-- -p：显示指定磁盘分区统计信息
+- -d：显示磁盘相关统计信息。(重要)
+- -p：显示指定磁盘分区统计信息(重要)
 - -S：使用指定单位显示。参数有 k 、K 、m 、M ，分别代表1000、1024、1000000、1048576字节（byte）。默认单位为K（1024 bytes）
 
 ### 案例
@@ -488,25 +448,69 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 
 ### 参数说明
+#### FIELD DESCRIPTION FOR VM MODE
 
-字段说明：
+#####   Procs
+       r: The number of runnable processes (running or waiting for run time).
+       b: The number of processes in uninterruptible sleep.
 
-- r 表示运行队列(就是说多少个进程真的分配到CPU)，我测试的服务器目前CPU比较空闲，没什么程序在跑，当这个值超过了CPU数目，就会出现CPU瓶颈了。这个也和top的负载有关系，一般负载超过了3就比较高，超过了5就高，超过了10就不正常了，服务器的状态很危险。top的负载类似每秒的运行队列。如果运行队列过大，表示你的CPU很繁忙，一般会造成CPU使用率很高。
-- b  处在非中断睡眠状态的进程数。意味着进程被阻塞。主要是指被资源阻塞的进程对列数（比如IO资源、页面调度等），当这个值较大时，需要根据应用程序来进行分析，比如数据库产品，中间件应用等。
-- swpd 虚拟内存已使用的大小，如果大于0，表示你的机器物理内存不足了，如果不是程序内存泄露的原因，那么你该升级内存了或者把耗内存的任务迁移到其他机器。
-- free   空闲的物理内存的大小，我的机器内存总共8G，剩余3415M。
-- buff   Linux/Unix系统是用来存储，目录里面有什么内容，权限等的缓存，我本机大概占用300多M
-- cache cache直接用来记忆我们打开的文件,给文件做缓冲，我本机大概占用300多M(这里是Linux/Unix的聪明之处，把空闲的物理内存的一部分拿来做文件和目录的缓存，是为了提高 程序执行的性能，当程序使用内存时，buffer/cached会很快地被使用。)
-- si  每秒从磁盘读入虚拟内存的大小，如果这个值大于0，表示物理内存不够用或者内存泄露了，要查找耗内存进程解决掉。我的机器内存充裕，一切正常。
-- so  每秒虚拟内存写入磁盘的大小，如果这个值大于0，同上。
-- bi  块设备每秒接收的块数量，这里的块设备是指系统上所有的磁盘和其他块设备，默认块大小是1024byte，我本机上没什么IO操作，所以一直是0，但是我曾在处理拷贝大量数据(2-3T)的机器上看过可以达到140000/s，磁盘写入速度差不多140M每秒
-- bo 块设备每秒发送的块数量，例如我们读取文件，bo就要大于0。bi和bo一般都要接近0，不然就是IO过于频繁，需要调整。
-- in 每秒CPU的中断次数，包括时间中断
-- cs 每秒上下文切换次数，例如我们调用系统函数，就要进行上下文切换，线程的切换，也要进程上下文切换，这个值要越小越好，太大了，要考虑调低线程或者进程的数目,例如在apache和nginx这种web服务器中，我们一般做性能测试时会进行几千并发甚至几万并发的测试，选择web服务器的进程可以由进程或者线程的峰值一直下调，压测，直到cs到一个比较小的值，这个进程和线程数就是比较合适的值了。系统调用也是，每次调用系统函数，我们的代码就会进入内核空间，导致上下文切换，这个是很耗资源，也要尽量避免频繁调用系统函数。上下文切换次数过多表示你的CPU大部分浪费在上下文切换，导致CPU干正经事的时间少了，CPU没有充分利用，是不可取的。
-- us 用户CPU时间，我曾经在一个做加密解密很频繁的服务器上，可以看到us接近100,r运行队列达到80(机器在做压力测试，性能表现不佳)。
-- sy 系统CPU时间，如果太高，表示系统调用时间长，例如是IO操作频繁。
-- id  空闲 CPU时间，一般来说，id + us + sy = 100,一般我认为id是空闲CPU使用率，us是用户CPU使用率，sy是系统CPU使用率。
-- wt 等待IO CPU时间
+#####  Memory
+       swpd: the amount of virtual memory used.
+       free: the amount of idle memory.
+       buff: the amount of memory used as buffers.
+       cache: the amount of memory used as cache.
+       inact: the amount of inactive memory.  (-a option)
+       active: the amount of active memory.  (-a option)
+
+#####  Swap
+       si: Amount of memory swapped in from disk (/s).
+       so: Amount of memory swapped to disk (/s).
+
+#####  IO
+       bi: Blocks received from a block device (blocks/s).
+       bo: Blocks sent to a block device (blocks/s).
+
+#####  System
+       in: The number of interrupts per second, including the clock.
+       cs: The number of context switches per second.
+
+#####  CPU
+       These are percentages of total CPU time.
+       us: Time spent running non-kernel code.  (user time, including nice time)
+       sy: Time spent running kernel code.  (system time)
+       id: Time spent idle.  Prior to Linux 2.5.41, this includes IO-wait time.
+       wa: Time spent waiting for IO.  Prior to Linux 2.5.41, included in idle.
+       st: Time stolen from a virtual machine.  Prior to Linux 2.6.11, unknown.
+
+#### FIELD DESCRIPTION FOR DISK MODE
+#####   Reads
+       total: Total reads completed successfully
+       merged: grouped reads (resulting in one I/O)
+       sectors: Sectors read successfully
+       ms: milliseconds spent reading
+
+#####    Writes
+       total: Total writes completed successfully
+       merged: grouped writes (resulting in one I/O)
+       sectors: Sectors written successfully
+       ms: milliseconds spent writing
+
+#####    IO
+       cur: I/O in progress
+       s: seconds spent for I/O
+
+#### FIELD DESCRIPTION FOR DISK PARTITION MODE
+       reads: Total number of reads issued to this partition
+       read sectors: Total read sectors for partition
+       writes : Total number of writes issued to this partition
+       requested writes: Total number of write requests made for partition
+
+#### FIELD DESCRIPTION FOR SLAB MODE
+       cache: Cache name
+       num: Number of currently active objects
+       total: Total number of available objects
+       size: Size of each object
+       pages: Number of pages with at least one active object
 
 **重要**
 
