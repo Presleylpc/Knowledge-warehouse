@@ -53,7 +53,10 @@
         <td><a href="doc/install/07- kylin部署.md">07 kylin部署</a></td>
         <td><a href="doc/install/08-azkaban.md">08 azkaban</a></td>
         <td><a href="doc/install/09-elasticsearch+kibana.md">09 elasticsearch+kibana</a></td>
-        <td><a href="doc/install/10-sqoop部署.md">10-sqoop部署</a></td>
+    </tr>
+    <tr>
+    <td><a href="doc/install/09-01 ES集群配置IK 插件.md">09-01 ES集群配置IK插件</a></td>
+    <td><a href="doc/install/10-sqoop部署.md">10-sqoop部署</a></td>
     </tr>
 </table>
 
