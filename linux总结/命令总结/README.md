@@ -80,23 +80,23 @@ time nohup nc xargs
 
 ## 监视物理组件的高级 Linux命令
 
-### 内存:
+### 内存
 
 top free vmstat  iostat sar  pmap
 
-### CPU:
+### CPU
 
 top vmstat mpstat iostat sar ps
 
-### I/O:
+### I/O
 
 vmstat mpstat iostat sar 
 
-### 进程:
+### 进程
 
 ipcs ipcrm 
 
-### 负载:
+### 负载
 
 uptime 
 
@@ -130,5 +130,5 @@ ctl+d ——>快捷键(生产常用)
 
 ## 危险的系统命令：
 mv rm dd fdisk parted 
-## linux 四剑客（4 个）
-grep egrep sed awk
+## linux 三剑客（3 个）
+grep  sed awk
