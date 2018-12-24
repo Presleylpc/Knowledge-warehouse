@@ -1,0 +1,19 @@
+[all:children]
+director
+server
+
+[director]
+cdhserver1  role=master priority=100
+cdhserver2  role=slave  priority=90
+
+[server]
+cdhserver3   weight=3
+cdhserver4   weight=3
+
+
+[all:vars]
+v_ip=192.168.0.30     # 虚拟IP地址
+lvs_type=DR           # lvs类型 目前只支持DR模式
+lvs_id=LVS_DEVEL      
+port=80               # 需要代理的端口
+

@@ -1,0 +1,46 @@
+- name: 检查zookeeper是否安装
+  stat: path={{ base_dir }}/zookeeper
+  register: p
+
+- block:
+  - name: 分发zookeeper
+    unarchive: src={{ package_dir }}/zookeeper-3.4.5-cdh5.14.2.tar.gz  dest={{ base_dir }}
+
+  - name: 创建软连接
+    file: state=link src={{ base_dir }}/zookeeper-3.4.5-cdh5.14.2 dest={{ base_dir }}/zookeeper
+
+  - name: 配置环境变量
+    shell: echo '{{ item }}'>> ~/.bash_profile 
+    with_items:
+    - export ZOOKEEPER_HOME=/application/hadoop/app/zookeeper
+    - export PATH=$PATH:$ZOOKEEPER_HOME/bin
+  
+  - name: 分发配置文件
+    template: src=zoo.cfg.j2 dest={{ base_dir }}/zookeeper/conf/zoo.cfg
+  
+  - name: 准备数据日志目录
+    file: path={{ item }} state=directory
+    with_items:
+    - /application/hadoop/data/zookeeper/zkdata
+    - /application/hadoop/data/zookeeper/zkdatalog
+    - /application/hadoop/app/zookeeper/logs
+
+  - name: 分发id文件
+    template: src=myid.j2 dest=/application/hadoop/data/zookeeper/zkdata/myid
+  
+  - name: 修改配置文件zkEnv.sh
+    lineinfile: path=/application/hadoop/app/zookeeper/libexec/zkEnv.sh  regexp={{ item.rex }} line={{ item.str }}
+    with_items:
+    - {rex: "^ *ZOO_LOG_DIR", str: "   ZOO_LOG_DIR=\"$ZOOKEEPER_HOME/logs\""}
+    - {rex: "^ *ZOO_LOG4J_PROP", str: "    ZOO_LOG4J_PROP=\"INFO,ROLLINGFILE\""}
+
+  - name: 修改配置文件og4j.properties
+    lineinfile: path=/application/hadoop/app/zookeeper/conf/log4j.properties regexp={{ item.rex }} line={{ item.str }}
+    with_items:
+    - {rex: "^zookeeper.root.logger", str: "zookeeper.root.logger=INFO, ROLLINGFILE"}
+    - {rex: "^zookeeper.log.dir", str: "zookeeper.log.dir=/application/hadoop/app/zookeeper/logs"}
+    - {rex: "^log4j.appender.ROLLINGFILE", str: "log4j.appender.ROLLINGFILE=org.apache.log4j.RollingFileAppender"}
+  when: p.stat.isreg is not defined
+
+- name: 启动zookeeper
+  shell: source ~/.bash_profile && /application/hadoop/app/zookeeper/bin/zkServer.sh start

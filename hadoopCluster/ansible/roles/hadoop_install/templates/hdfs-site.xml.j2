@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<!-- namenode 配置 -->
+<!-- 这里的值指的是默认的HDFS路径 ，取名为{{ NN_NAME }} -->
+<configuration>
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://{{ NN_NAME }}</value>
+</property>
+
+<!-- namenode存储namespace and transactions logs的路径本地磁盘保存的路径。-->
+<property>
+<name>dfs.namenode.name.dir</name>
+<value>{{ NAMENODE_DIR }}</value>
+</property>
+	
+<!-- namenod 白名单-->
+<property>
+<name>dfs.namenode.hosts</name>
+<value>{{ NN_LIST }}</value>
+</property>
+	
+<!-- HDFS 块大小  256MB-->
+<property>
+<name>dfs.blocksize</name>
+<value>268435456</value>
+</property>
+
+<!-- namenode  RPCs线程数量 -->
+<property>
+<name>dfs.namenode.handler.count</name>
+<value>50</value>
+</property>
+	
+
+<!-- DataNode 配置 -->
+<!-- DataNode blocks存储空间 -->
+<property>
+<name>dfs.datanode.data.dir</name>
+<value>{{ BLOCKS_DIR }}</value>
+</property>
+	
+
+<!-- NameNode HA 配置-->
+<property>
+<name>dfs.nameservices</name>
+<value>{{ NN_NAME }}</value>
+</property>
+
+<property>
+<name>dfs.ha.namenodes.{{ NN_NAME }}</name>
+<value>{{ NAMENODE }}</value>
+</property>
+<!-- 为每个 NameNode 设置 RPC 地址 -->
+{% for h in groups['hadoop_namenode'] %}
+￼<property> 
+<name>dfs.namenode.rpc-address.{{ NN_NAME }}.{{ hostvars[h]['id'] }}</name>
+<value>{{ h }}:9000</value>
+</property>
+
+{% endfor %}
+
+<!-- 为每个 NameNode 设置对外的 HTTP 地址 -->
+{% for h in groups['hadoop_namenode'] %}
+<property> 
+<name>dfs.namenode.http-address.{{ NN_NAME }}.{{ hostvars[h]['id'] }}</name> 
+<value>{{ h }}:50070</value>
+</property>
+
+{% endfor %}
+
+<!--  journalNode 的 URI -->
+<property>
+￼￼￼<name>dfs.namenode.shared.edits.dir</name>
+<value>qjournal://{{ QJOURNAL_URI }}/{{ NN_NAME }}</value>
+</property>
+
+<!-- 设置客户端与 active NameNode 进行交互的 Java 实现类 -->
+<property>
+<name>dfs.client.failover.proxy.provider.{{ NN_NAME }}</name>
+<value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+</property>
+
+<!-- 脑裂问题解决 -->
+￼<property>
+<name>dfs.ha.fencing.methods</name>
+<value>sshfence</value>
+</property>
+<property>
+<name>dfs.ha.fencing.ssh.private-key-files</name>
+<value>/application/hadoop/.ssh/id_rsa</value>
+</property>
+
+<!-- JournalNode 所在节点上的一个目录 -->
+<property>
+<name>dfs.journalnode.edits.dir</name>
+<value>{{ QJOURNAL_DIR }}</value>
+</property>
+
+<!-- 配置自动切换 -->
+<property>
+<name>dfs.ha.automatic-failover.enabled</name> 
+<value>true</value>
+</property>
+<property>
+<name>ha.zookeeper.quorum</name>
+<value>{{ ZK_ADDR }}</value>
+</property>
+</configuration>

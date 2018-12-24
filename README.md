@@ -23,15 +23,16 @@
 
 |专题		|说明			|
 | ------ | ------------|
-|[大数据集群](hadoopCluster/README.md)	|包含Hadoop及大数据相关服务的**安装**，介绍等内容。|
-|[docker/kubenetes]()|docker、docker-compose部署、使用文档。kubenetes 部署、使用文档。|
-|[python]()|python在运维工作中常用的库、以及常用方式。 |
+|[大数据集群](hadoopCluster/)	|包含Hadoop及大数据相关服务的**安装**，介绍等内容。|
+|docker/kubenetes<br>[kubenetes](k8s-docker/k8s/)|docker、docker-compose部署、使用文档。kubenetes 部署、使用文档。|
+|[python](python/)|python在运维工作中常用的库、以及常用方式。 |
+|[linux](linux总结/)|linux基础命令总结、系统优化等内容 |
+|[服务总结](service/)|服务搭建、自动化部署以及服务架构相关总结 |
 
 
 
 我会优先总结这三个大类的知识点，其他的内容慢慢扩充，其他内容包括：
 
-- 基础服务
 - 网络
 - MySQL数据库
 

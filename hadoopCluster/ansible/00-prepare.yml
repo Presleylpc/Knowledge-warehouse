@@ -1,0 +1,7 @@
+- hosts: all
+  roles:
+  - base_optimize
+
+- hosts: cdh
+  roles:
+  - java_env_prepare

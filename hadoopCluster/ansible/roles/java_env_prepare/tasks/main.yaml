@@ -1,0 +1,35 @@
+- name: 准备安装目录
+  file: name={{ base_dir }} state=directory
+
+- name: 判断java是否部署
+  stat: path={{ base_dir }}/jdk
+  register: p
+
+- name: 分发jdk 文件
+  unarchive: src={{ package_dir }}/jdk-8u191-linux-i586.tar.gz  dest={{ base_dir }}
+  when: p.stat.isreg is not defined
+
+- name: 创建软连接
+  file: state=link src={{ base_dir }}/jdk1.8.0_191 dest={{ base_dir }}/jdk
+  when: p.stat.isreg is not defined
+
+- name: java依赖
+  yum: name=glibc.i686
+  when: p.stat.isreg is not defined
+
+- name: 修改环境变量
+  shell: echo '{{ item }}'>> ~/.bash_profile 
+  with_items:
+  - #java
+  - export JAVA_HOME={{ base_dir }}/jdk
+  - export CLASSPATH=.:$JAVA_HOME/lib:$CLASSPATH
+  - export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+  when: p.stat.isreg is not defined
+
+- name: 加载环境变量
+  shell: source ~/.bash_profile
+  when: p.stat.isreg is not defined
+
+- name: java测试
+  shell: source ~/.bash_profile &&  java -version
+

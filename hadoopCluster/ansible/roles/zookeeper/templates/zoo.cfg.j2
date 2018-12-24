@@ -1,0 +1,32 @@
+# The number of milliseconds of each tick
+tickTime=2000
+# The number of ticks that the initial
+# synchronization phase can take
+initLimit=10
+# The number of ticks that can pass between
+# sending a request and getting an acknowledgement
+syncLimit=5
+# the directory where the snapshot is stored.
+# do not use /tmp for storage, /tmp here is just
+# example sakes.
+# **数据文件目录与日志目录**
+dataDir=/application/hadoop/data/zookeeper/zkdata
+dataLogDir=/application/hadoop/data/zookeeper/zkdatalog
+# the port at which the clients will connect
+clientPort=2181
+# **server.服务编号=主机名称：Zookeeper不同节点之间同步和通信的端口：选举端口（选举leader）**
+
+{% for host in groups.zookeeper %}
+server.{{ hostvars[host]['id'] }}={{ host }}:2888:3888
+{% endfor %}
+
+# **节点变更时只需在此添加或者删除相应的节点（所有节点配置都需要修改），然后在启动新增或者停止删除的节点即可**
+# administrator guide before turning on autopurge.
+#
+# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+#
+# The number of snapshots to retain in dataDir
+#autopurge.snapRetainCount=3
+# Purge task interval in hours
+# Set to "0" to disable auto purge feature
+#autopurge.purgeInterval=1
